@@ -221,3 +221,5 @@ If a database error occurs: 500 Internal Server Error.
 Otherwise, success: 201 Created with the listing ID.
 
 ![Diagram Place Creation](/part1/Place_Creation.png)
+![Diagram Place Creation](/part1/get_place.png)
+![Diagram Place Creation](/part1/post_reviews.png)
