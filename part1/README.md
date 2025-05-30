@@ -1,5 +1,45 @@
-# __UML - Explanatory Notes__
+# __HBnB – Technical Architecture Documentation__
 
+## __Introduction__
+
+This document constitutes the technical documentation for the HBnB project, an "Airbnb"-like platform allowing users to publish, search, and comment on rental listings.
+
+Its objective is to provide a comprehensive overview of the system's software architecture through several UML diagrams and their detailed explanations. It will serve as a primary reference during the various phases of the project's development and evolution.
+
+The document is structured as follows:
+
+- A presentation of the layered architecture (package diagram) illustrating the responsibilities of each module.
+
+- A detailed description of the business logic via a comprehensive class diagram.
+
+- Sequence diagrams illustrating the interactions between components during typical API calls (creating a user, submitting a review, etc.).
+
+Each section includes explanations of design choices, entity relationships, and expected business behaviors.
+
+## __Summary__
+
+1. [🧩 High-Level Package Diagram](#high-level-package-diagram)
+    
+    1.1 [🖥️ Presentation Layer](#presentation-layer)  
+    1.2 [🧠 Business Logic Layer](#business-logic-layer)  
+    1.3 [💾 Persistence Layer](#persistence-layer)
+
+2. [🧠 Business Logic Class Diagram](#class-diagram-for-business-logic-layer)
+
+    2.1 [👤 User Class](#userclass)  
+    2.2 [🏠 Place Class](#placeclass)  
+    2.3 [📝 Review Class](#reviewclass)  
+    2.4 [🛎️ Amenity Class](#amenityclass)  
+    2.5 [🏷️ Place Amenity Class](#place_amenityclass)
+
+3. [📡 API Interaction Flow](#api-interaction-flow)
+
+    3.1 [👤 User Registration Diagram](#user-registration-diagram)  
+    3.2 [🏠 Place Creation Diagram](#place-creation-diagram)  
+    3.3 [📍 Fetching a List of Place Diagram](#fetching-a-list-of-places-diagram)  
+    3.4 [📝 Review Submission Diagram](#review-submission-diagram)
+
+4. [✍️ Authors](#authors)
 ## __High-Level Package Diagram__
 
 ### ___Presentation Layer___
@@ -33,7 +73,7 @@ This layer is isolated to facilitate maintenance, migrations, or storage system 
 
 ### ___Relationship between them___
 
-| **Of**  |  **Worms**         | **Type of relationship** |
+| **From**  |  **To**         | **Type of relationship** |
 | :----------------- |:--------------------:| --------------:|
 |  _PresentationLayer_ |   _BusinessLogicLayer_ | Facade Pattern |
 | _BusinessLogicLayer_ | _PersistenceLayer_ |   Database Operations |
@@ -164,51 +204,53 @@ An amenity can be shared between multiple places.
 
 ![Class Diagram](/part1/Class_Diagram.png)
 
-## ___User Registration Diagram___
+## __API Interaction Flow__
+
+### ___User Registration Diagram___
 
 This diagram models the process of registering a new user in the system. It includes all validations on the API and business logic side.
 
 <u>__Detailed steps:__</u>
 
-The user sends a POST request to /user with their information (email, password, name, etc.).
+The user sends a `POST` request to `/user` with their information (email, password, name, etc.).
 
-The API validates the structure of the request (validate_Format()).
+The API validates the structure of the request (`validate_Format()`).
 
-If the fields are missing or poorly formatted → 400 Bad Request response.
+If the fields are missing or poorly formatted: `400 Bad Request` response.
 
 <u>__If the structure is correct:__</u>
 
 The API passes the data to the Business Logic layer for business validation.
 
-If the email already exists → 400 Bad Request response.
+If the email already exists: `400 Bad Request` response.
 
 <u>__If validation succeeds:__</u>
 
 The business logic calls the database to register the user.
 
-If a database error occurs → 500 Internal Server Error.
+If a database error occurs: `500 Internal Server Error`.
 
-Otherwise → 201 Created with the user ID.
+Otherwise → `201 Created` with the user ID.
 
 ![Diagram User Registration](/part1/User_Registration.png)
 
-## ___Place Creation Diagram___
+### ___Place Creation Diagram___
 
 This diagram represents the process of creating a new place by a user (often an administrator).
 
 <u>__Detailed steps:__</u>
 
-The user sends a POST request to /places with the listing information.
+The user sends a `POST` request to `/places` with the listing information.
 
 The API checks via business logic whether the user is an administrator.
 
-If not, 403 Forbidden.
+If not, `403 Forbidden`.
 
 <u>__If the user is an administrator:__</u>
 
 The API validates the data provided (validateRequest()).
 
-If invalid data: 400 Bad Request.
+If invalid data: `400 Bad Request`.
 
 <u>__If the data is valid:__</u>
 
@@ -216,10 +258,76 @@ The API calls the business logic to create the Place.
 
 The logic saves the listing to the database.
 
-If a database error occurs: 500 Internal Server Error.
+If a database error occurs: `500 Internal Server Error`.
 
-Otherwise, success: 201 Created with the listing ID.
+Otherwise, success: `201 Created` with the place ID.
 
 ![Diagram Place Creation](/part1/Place_Creation.png)
-![Diagram Place Creation](/part1/get_place.png)
-![Diagram Place Creation](/part1/post_reviews.png)
+
+### ___Fetching a List of Places Diagram___
+This diagram models the process of fetching a list of places with optional filter parameters. It includes validation steps on both the API and business logic layers.
+
+<u>__Detailed steps:__</u>
+
+The user sends a `GET` request to `/places` with filter parameters (e.g. location, type, etc.).
+
+The API validates the filter parameters.
+
+<u>__If the filters are invalid:__</u>
+
+`400 Bad Request` response with an error message.
+
+<u>__If the filters are valid:__</u>
+
+The API forwards the request to the business logic.
+
+The logic queries the database with the filters.
+
+If no matching results are found: `200 OK` with an empty list.
+
+If matching results are found: `200 OK` with the list of places.
+
+![Fetching a List of Place](/part1/get_place.png)
+
+### ___Review Submission Diagram___
+
+This diagram models the process of submitting a new review for a place. It includes input validation and database interaction.
+
+<u>__Detailed steps:__</u>
+
+The user sends a `POST` request to `/reviews` with the review data (e.g. rating, comment, place ID).
+
+The API validates the input data format.
+
+If required fields are missing or malformed: `400 Bad Request` response.
+
+<u>__If the data format is valid:__</u>
+
+The API forwards the data to the business logic.
+
+The logic attempts to insert the review into the database.
+
+If a database error occurs: `500 Internal Server Error` response.
+
+<u>__If the insert succeeds:__</u>
+
+The logic prepares a success response.
+
+`201 Created` with the newly created review data.
+
+![Review Submission](/part1/post_reviews.png)
+
+## __Conclusion__
+
+This document formalizes the technical foundations of the HBnB project. It clarifies the responsibilities of each layer of the architecture, the main business entities, and the key interactions with the API.
+
+Thanks to a modular structure and clear design principles, this foundation allows for a progressive, reliable, and maintainable implementation.
+
+This document must be updated as the project evolves to always accurately reflect the system's operation. It serves as an essential communication tool between developers, supervisors, and project stakeholders.
+
+This document will serve as a reference for implementation. Any future developments of the model must be based on this technical foundation.
+
+## __Authors__
+
+- [Vithushan Satkunanathan](https://github.com/Vitushan)
+- [Jules Ventura](https://github.com/Juleslgc)
