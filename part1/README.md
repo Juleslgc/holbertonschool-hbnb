@@ -109,6 +109,11 @@ Represents a system user who can create places and post reviews.
 
 `get_id()`: Returns the user's ID
 
+`get_password()`: Returns the user’s stored hashed password.
+
+`set_password()`: Updates and hashes the user’s password securely.
+`hash_password()`: Securely converts a plain password into a hashed form for safe storage.
+
 ### ___PlaceClass___
 
 <u>__Role:__</u>
