@@ -224,13 +224,27 @@ The API passes the data to the Business Logic layer for business validation.
 
 If the email already exists: `400 Bad Request` response.
 
-<u>__If validation succeeds:__</u>
+<u>__If business validation passes:__</u>
 
-The business logic calls the database to register the user.
+Business Logic hashes the user's password with `hash_password()`
+The plain-text password is transformed into a secure hash before any storage.
 
-If a database error occurs: `500 Internal Server Error`.
+<u>__If hashing fails due to an internal error:__</u>
 
-Otherwise → `201 Created` with the user ID.
+`500 Internal Server Error` is returned with an error message like "Password hashing failed".
+
+<u>__If hashing is successful:__</u>
+
+Business Logic saves the new user in the Database
+
+<u>__If a database error occurs:__</u>
+
+`500 Internal Server Error` is returned.
+
+<u>__If the user is saved successfully:__</u>
+
+`201 Created` is returned, along with the generated `user_id`.
+
 
 ![Diagram User Registration](/part1/User_Registration.png)
 
