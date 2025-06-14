@@ -57,4 +57,14 @@ Content-Type: application/json
  
  GET /api/v1/users/<user_id>
 Content-Type: application/json
+
+expected answers:
+{
+  "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "first_name": "John",
+  "last_name": "Doe",
+  "email": "john.doe@x.com"
+}
+
+// 200 OK
 """
