@@ -24,10 +24,10 @@ class User(BaseModel):
         if len(last_name) > 50 or last_name == "":
             raise ValueError("Last name is required must be characters")
 
-        if  not isinstance(password, str):
-            raise TypeError("Password required")
-        if password == "":
-            raise ValueError("Password is not empty")
+        if not isinstance(email, str):
+            raise TypeError("email must be strings")
+        if email == "" or "@" not in email or "." not in email:
+            raise ValueError("email must be not empty and contain '@' and '.' ")
 
         if not isinstance(is_admin, bool):
             raise TypeError("Is_admin must be boolean type")
