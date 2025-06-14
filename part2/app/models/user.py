@@ -2,7 +2,7 @@
 
 
 from models.base_model import BaseModel
-
+from models.place import Place
 
 class User(BaseModel):
     def __init__(self, first_name, last_name, email, password, is_admin=False):
@@ -12,6 +12,7 @@ class User(BaseModel):
         self.email = email
         self.password = password
         self.is_admin = is_admin
+        self.places = []
 
         if not isinstance(first_name, str):
             raise TypeError("First name is required")
@@ -35,3 +36,9 @@ class User(BaseModel):
 
     def __str__(self):
         return f"first_name: {self.first_name}\n last_name: {self.last_name}\n email: {self.email}"
+
+    def add_place(self, place):
+        """
+        Add a place to the user
+        """
+        self.places.append(place)

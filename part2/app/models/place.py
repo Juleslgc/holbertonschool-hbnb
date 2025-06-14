@@ -45,9 +45,13 @@ class Place(BaseModel):
             raise TypeError("Owner is an instance of User")
 
     def add_review(self, review):
-        """Add a review to the place."""
+        """
+        Add a review to the place.
+        """
         self.reviews.append(review)
 
     def add_amenity(self, amenity):
-        """Add an amenity to the place."""
+        """
+        Add an amenity to the place.
+        """
         self.amenities.append(amenity)
