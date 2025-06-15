@@ -3,6 +3,7 @@
 
 from flask_restx import Namespace, Resource, fields
 from app.services import facade
+from flask import request
 
 api = Namespace('users', description='User operations')
 
@@ -17,8 +18,7 @@ user_model = api.model('User', {
 class UserList(Resource):
     @api.expect(user_model, validate=True)
     @api.response(201, 'User successfully created')
-    @api.response(400, 'Email already registered')
-    @api.response(400, 'Invalid input data')
+    @api.response(400, 'Email already registered or invalid input')
     def post(self):
         """Register a new user"""
         user_data = api.payload
@@ -30,7 +30,22 @@ class UserList(Resource):
 
         new_user = facade.create_user(user_data)
         return {'id': new_user.id, 'first_name': new_user.first_name, 'last_name': new_user.last_name, 'email': new_user.email}, 201
-    
+
+    @api.response(200)
+    def get(self):
+        """
+        retrieve list of all users
+        """
+        users = facade.get_all_users()
+        return [
+            {
+                'id': user.id,
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+                'email': user.email
+            }
+            for user in users
+        ], 200
 @api.route('/<user_id>')
 class UserResource(Resource):
     @api.response(200, 'User details retrieved successfully')
@@ -42,29 +57,26 @@ class UserResource(Resource):
             return {'error': 'User not found'}, 404
         return {'id': user.id, 'first_name': user.first_name, 'last_name': user.last_name, 'email': user.email}, 200
 
-""" 
-example for calling POST for create a user:
-POST /api/v1/users/
-Content-Type: application/json
+    @api.expect(user_model, validate=True)
+    @api.response(200, 'User updated successfully')
+    @api.response(404, 'User not found')
+    @api.response(400, 'Invalid input')
+    @api.response(400, 'Email already registered')
+    def put(self, user_id):
+        user = facade.get_user(user_id)
+        if not user:
+            return {"error": "User not found"}, 404
 
-{
-  "first_name": "John",
-  "last_name": "Doe",
-  "email": "john.doe@example.com"
-}
- ------------------
- for fetch user by ID:
- 
- GET /api/v1/users/<user_id>
-Content-Type: application/json
+        data = api.payload
 
-expected answers:
-{
-  "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-  "first_name": "John",
-  "last_name": "Doe",
-  "email": "john.doe@x.com"
-}
+        existing_user = facade.get_user_by_email(data['email'])
+        if existing_user and existing_user.id != user.id:
+            return {"error": "Email already registered"}, 400
 
-// 200 OK
-"""
+        updates_user = facade.user_repo.update(user.id, data)
+        return {
+            'id':  updates_user.id,
+            'first_name':  updates_user.first_name,
+            'last_name': updates_user.last_name,
+            'email': updates_user.email
+            }, 200
