@@ -10,7 +10,7 @@ class Repository(ABC):
         pass
 
     @abstractmethod
-    def get_all(self):
+    def get_all_users(self):
         pass
 
     @abstractmethod
@@ -36,13 +36,17 @@ class InMemoryRepository(Repository):
     def get(self, obj_id):
         return self._storage.get(obj_id)
 
-    def get_all(self):
+    def get_all_users(self):
         return list(self._storage.values())
 
-    def update(self, data):
+    def update(self, obj_id, data):
+        obj = self._storage.get(obj_id)
+        if obj is None:
+            return None
         for key, value in data.items():
-            if hasattr(self, key):
-                setattr(self, key, value)
+            if hasattr(obj, key):
+                setattr(obj, key, value)
+        return obj
 
     def delete(self, obj_id):
         if obj_id in self._storage:

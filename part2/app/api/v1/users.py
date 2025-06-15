@@ -14,7 +14,8 @@ api = Namespace('users', description='User operations')
 user_model = api.model('User', {
     'first_name': fields.String(required=True, description='First name of the user'),
     'last_name': fields.String(required=True, description='Last name of the user'),
-    'email': fields.String(required=True, description='Email of the user')
+    'email': fields.String(required=True, description='Email of the user'),
+    'password': fields.String(required=True),
 })
 
 @api.route('/')
@@ -75,7 +76,7 @@ class UserResource(Resource):
         if existing_user and existing_user.id != user.id:
             return {"error": "Email already registered"}, 400
 
-        updates_user = facade.user_repo.update(user.id, data)
+        updates_user = facade.update(user.id, data)
         return {
             'id':  updates_user.id,
             'first_name':  updates_user.first_name,

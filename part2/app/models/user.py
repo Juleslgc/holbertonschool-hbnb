@@ -1,9 +1,11 @@
 #!/usr/bin/python3
 
 
-from models.base_model import BaseModel
-from models.place import Place
-from app.services.facade import facade
+from app.models.base_model import BaseModel
+from app.models.place import Place
+
+
+
 
 
 class User(BaseModel):
