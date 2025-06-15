@@ -1,5 +1,8 @@
 from app.persistence.repository import InMemoryRepository
 from models.user import User
+
+
+
 class HBnBFacade:
     def __init__(self):
         self.user_repo = InMemoryRepository()
@@ -32,3 +35,5 @@ class HBnBFacade:
         user = self.user_repo.get(user_id)
         if not user:
             return None
+ 
+facade = HBnBFacade()

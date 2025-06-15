@@ -3,6 +3,8 @@
 
 from models.base_model import BaseModel
 from models.place import Place
+from app.services.facade import facade
+
 
 class User(BaseModel):
     def __init__(self, first_name, last_name, email, password, is_admin=False):

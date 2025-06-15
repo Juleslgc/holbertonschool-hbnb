@@ -2,8 +2,11 @@
 
 
 from flask_restx import Namespace, Resource, fields
-from app.services import facade
+from app.services.facade import facade
 from flask import request
+
+
+
 
 api = Namespace('users', description='User operations')
 
@@ -31,7 +34,7 @@ class UserList(Resource):
         new_user = facade.create_user(user_data)
         return {'id': new_user.id, 'first_name': new_user.first_name, 'last_name': new_user.last_name, 'email': new_user.email}, 201
 
-    @api.response(200)
+    @api.response(200, 'List of users successfully retrieved')
     def get(self):
         """
         retrieve list of all users
@@ -58,9 +61,8 @@ class UserResource(Resource):
         return {'id': user.id, 'first_name': user.first_name, 'last_name': user.last_name, 'email': user.email}, 200
 
     @api.expect(user_model, validate=True)
-    @api.response(200, 'User updated successfully')
-    @api.response(404, 'User not found')
-    @api.response(400, 'Invalid input')
+    @api.response(200, 'User is successfully retrieved')
+    @api.response(404, 'User does not exist')
     @api.response(400, 'Email already registered')
     def put(self, user_id):
         user = facade.get_user(user_id)
