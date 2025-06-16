@@ -37,5 +37,14 @@ class HBnBFacade:
         if not user:
             return None
         return self.user_repo.update(user_id, data)
+
+    def to_dict(self, id, first_name, last_name, email):
+        return {
+            'id': id,
+            'first_name': first_name,
+            'last_name': last_name,
+            'email': email
+            }, 200
+
  
 facade = HBnBFacade()
