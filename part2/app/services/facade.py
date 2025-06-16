@@ -2,8 +2,6 @@ from app.persistence.repository import InMemoryRepository
 from app.models.user import User
 
 
-
-
 class HBnBFacade:
     def __init__(self):
         self.user_repo = InMemoryRepository()
@@ -31,7 +29,6 @@ class HBnBFacade:
     def get_all_users(self):
         return self.user_repo.get_all_users()
     
-
     def update(self, user_id, data):
         user = self.user_repo.get(user_id)
         if not user:
