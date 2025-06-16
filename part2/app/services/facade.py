@@ -42,4 +42,5 @@ class HBnBFacade:
             'last_name': last_name,
             'email': email
             }, 200
+
 facade = HBnBFacade()
