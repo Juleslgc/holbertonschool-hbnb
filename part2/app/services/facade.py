@@ -43,4 +43,5 @@ class HBnBFacade:
             'email': email
             }, 200
 
+
 facade = HBnBFacade()

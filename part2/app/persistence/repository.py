@@ -34,7 +34,7 @@ class InMemoryRepository(Repository):
         self._storage[obj.id] = obj
 
     def get(self, obj_id):
-        return self._storage.get(obj_id)
+        return self._storage.get(str(obj_id))
 
     def get_all_users(self):
         return list(self._storage.values())
