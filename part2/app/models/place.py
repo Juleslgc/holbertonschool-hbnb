@@ -5,18 +5,17 @@ class Place(BaseModel):
         super().__init__()
         self.title = title
         self.description = description
-        self.price = float, int(price)
+        self.price = float(price)
         self.latitude = float(latitude)
         self.longitude = float(longitude)
         self.__owner_id = owner_id
         self.reviews = []
         self.amenities = []
 
-   
         if not isinstance(self.title, str):
             raise TypeError("Title must be a string")
         if self.title == "" or len(self.title) > 100:
-            raise ValueError("Title is required and must be at 100 most characters")
+            raise ValueError("Title is required and must be at most 100 characters")
         if not isinstance(self.description, str):
             raise TypeError("Description must be a string")
         if not isinstance(self.price, float):
@@ -31,9 +30,6 @@ class Place(BaseModel):
             raise TypeError("Longitude must be a float")
         if self.longitude < -180.0 or self.longitude > 180.0:
             raise ValueError("Longitude must be between -180.0 and 180.0")
-        if not hasattr(self.__owner_id, 'email') or not hasattr(self.__owner_id, 'first_name') or not hasattr(self.owner_id, 'last_name'):
-            raise TypeError("Owner must be an instance of User")
-
 
     def add_review(self, review):
         self.reviews.append(review)
@@ -43,10 +39,8 @@ class Place(BaseModel):
 
     @property
     def owner_id(self):
-        return self.__owner
+        return self.__owner_id
 
     @owner_id.setter
     def owner_id(self, new_owner_id):
-        if not all(hasattr(new_owner_id, 'email') or not hasattr(new_owner_id, 'first_name') or not hasattr(new_owner_id, 'last_name')):
-            raise TypeError("Owner must be an instance of User")
-        self.__owner = new_owner_id
+        self.__owner_id = new_owner_id
