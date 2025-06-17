@@ -10,6 +10,7 @@ class Amenity(BaseModel):
         self.name = name
         self.description = description
 
+        
         if not isinstance(name, str) or name == "":
             raise TypeError("Name must be a string and not empty")
         if len(name) > 50:

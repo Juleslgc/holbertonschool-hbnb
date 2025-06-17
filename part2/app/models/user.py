@@ -22,7 +22,7 @@ class User(BaseModel):
             raise TypeError("First name is required")
         if len(first_name) > 50 or first_name == "":
             raise ValueError("First name is required must be characters")
-        
+
 
         if not isinstance(last_name, str):
             raise TypeError("Last name is required")
@@ -46,3 +46,11 @@ class User(BaseModel):
         Add a place to the user
         """
         self.places.append(place)
+
+    def to_dict(self, id, first_name, last_name, email):
+        return {
+            'id': id,
+            'first_name': first_name,
+            'last_name': last_name,
+            'email': email
+            }, 200
