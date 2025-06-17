@@ -24,13 +24,13 @@ class HBnBFacade:
 
     def get_user(self, user_id):
         return self.user_repo.get(user_id)
-    
+
     def get_user_by_email(self, email):
         return self.user_repo.get_by_attribute('email', email)
 
     def get_all_users(self):
         return self.user_repo.get_all_users()
-    
+
 
     def update(self, user_id, data):
         user = self.user_repo.get(user_id)
@@ -46,5 +46,4 @@ class HBnBFacade:
             'email': email
             }, 200
 
- 
 facade = HBnBFacade()

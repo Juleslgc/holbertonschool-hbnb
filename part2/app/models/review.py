@@ -15,7 +15,7 @@ class Review(BaseModel):
 
         if not isinstance(text, str):
             raise TypeError("Reviews contain is mandatory")
-        
+
         if not isinstance(rating, int):
             raise TypeError("Rating must be a integer")
         if rating < 1 or rating > 5:

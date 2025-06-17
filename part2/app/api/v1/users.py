@@ -73,7 +73,7 @@ class UserResource(Resource):
 
         existing_user = facade.get_user_by_email(data['email'])
         if existing_user and existing_user.id != user.id:
-            return {"error": "Email already registered"}, 400
+            return {"error": "Email already registered"}, 409
 
         updates_user = facade.update(user.id, data)
         return {
