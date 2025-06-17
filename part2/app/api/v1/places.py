@@ -1,6 +1,7 @@
 from flask_restx import Namespace, Resource, fields
 from app.services import facade
 from app.models import place
+from app.persistence.repository import InMemoryRepository
 
 api = Namespace('places', description='Place operations')
 
@@ -44,7 +45,11 @@ class PlaceList(Resource):
     def post(self):
         """Register a new place"""
         place_data = api.payload
+        print(place_data)
         try:
+            owner = facade.get_user_by_id(place_data['owner_id'])
+            if owner is None:
+                return {'error': 'User not found'}, 404
             place = facade.create_place(place_data)
             return place.to_dict(), 201
         except Exception as e:

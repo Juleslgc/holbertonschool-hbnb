@@ -3,6 +3,7 @@
 
 from app.models.base_model import BaseModel
 from app.models.place import Place
+import re
 
 
 
@@ -14,7 +15,7 @@ class User(BaseModel):
         self.first_name = first_name
         self.last_name = last_name
         self.email = email
-        self.password = password
+        self.__password = password
         self.is_admin = is_admin
         self.places = []
 
@@ -29,14 +30,28 @@ class User(BaseModel):
         if len(last_name) > 50 or last_name == "":
             raise ValueError("Last name is required must be characters")
 
-        if not isinstance(email, str):
-            raise TypeError("email must be strings")
-        if email == "" or "@" not in email or "." not in email:
-            raise ValueError("email must be not empty and contain '@' and '.' ")
+        
 
         if not isinstance(is_admin, bool):
             raise TypeError("Is_admin must be boolean type")
     
+    @property
+    def email(self):
+        return self.__email
+    
+    @email.setter
+    def email(self, new_email):
+        if not isinstance(new_email, str):
+            raise TypeError("email must be strings")
+        self.__email = self.verified_email(new_email)
+    
+    @property
+    def password(self):
+        return self.__password
+    
+    @password.setter
+    def password(self, new_password):
+        self.__password = new_password
 
     def __str__(self):
         return f"first_name: {self.first_name}\n last_name: {self.last_name}\n email: {self.email}"
@@ -54,3 +69,11 @@ class User(BaseModel):
             'last_name': self.last_name,
             'email': self.email
             }
+    
+    def verified_email(self, email):
+        extensions = ['com', 'fr', 'net', 'org']
+        pattern = r'^[^@\s]+@[^@\s]+\.(%s)$' % '|'.join(extensions)
+        
+        if re.match(pattern, email, re.IGNORECASE):
+            return email
+        raise ValueError ("Invalid email")

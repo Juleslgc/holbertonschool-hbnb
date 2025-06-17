@@ -20,3 +20,11 @@ class BaseModel:
             if hasattr(self, key):
                 setattr(self, key, value)
         self.save()  # Update the updated_at timestamp
+
+    """@property
+    def id(self):
+        return self.__id
+    
+    @id.setter
+    def id(self, new_id):
+        self.__id = new_id"""

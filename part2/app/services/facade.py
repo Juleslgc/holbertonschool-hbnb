@@ -26,6 +26,9 @@ class HBnBFacade:
     
     def get_user_by_email(self, email):
         return self.user_repo.get_by_attribute('email', email)
+    
+    def get_user_by_id(self, id):
+        return self.user_repo.get_by_attribute('id', id)
 
     def get_all_users(self):
         users = self.user_repo.get_all()
@@ -97,5 +100,5 @@ class HBnBFacade:
 
     def delete_review(self, review_id):
         return self.review_repo.delete(review_id)
-
+     
 facade = HBnBFacade()

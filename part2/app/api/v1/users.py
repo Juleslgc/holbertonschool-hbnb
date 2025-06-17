@@ -1,12 +1,7 @@
 #!/usr/bin/python3
-
-
 from flask_restx import Namespace, Resource, fields
-from app.services.facade import facade
+from app.services import facade
 from flask import request
-
-
-
 
 api = Namespace('users', description='User operations')
 
