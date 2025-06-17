@@ -5,9 +5,9 @@ class Place(BaseModel):
         super().__init__()
         self.title = title
         self.description = description
-        self.price = price
-        self.latitude = latitude
-        self.longitude = longitude
+        self.price = float, int(price)
+        self.latitude = float(latitude)
+        self.longitude = float(longitude)
         self.__owner_id = owner_id
         self.reviews = []
         self.amenities = []
