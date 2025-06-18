@@ -11,5 +11,3 @@ def test_user_creation():
     assert user.is_admin is False  # Default value
     assert user.places == []
     print("User creation test passed!")
-
-test_user_creation()
