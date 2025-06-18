@@ -1,4 +1,7 @@
 #!/usr/bin/python3
+"""
+This is a module for interpreting python3
+"""
 
 import uuid
 from datetime import datetime
@@ -9,17 +12,21 @@ class BaseModel:
         self.created_at = datetime.now()
         self.updated_at = datetime.now()
 
+
     @property
     def id(self):
         return self.__id
+
 
     @id.setter
     def id(self, new_id):
         self.__id = new_id
 
+
     def save(self):
         """Update the updated_at timestamp whenever the object is modified"""
         self.updated_at = datetime.now()
+
 
     def update(self, data):
         """Update the attributes of the object based on the provided dictionary"""

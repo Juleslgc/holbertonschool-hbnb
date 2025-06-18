@@ -2,6 +2,10 @@ from flask import Flask
 from flask_restx import Api
 
 def create_app():
+    """
+    Create and configure the flask application
+    with Flask-RestX API.
+    """
     app = Flask(__name__)
     api = Api(
         app,
