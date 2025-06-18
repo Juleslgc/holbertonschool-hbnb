@@ -55,7 +55,7 @@ class ReviewResource(Resource):
             return {'error': 'Review not found'}
         try:
             update_review = facade.update_review(review_id, review_data)
-            return update_review.to_dict(), 200
+            return {"message": "Review updated successfully"}, 200
         except Exception as e:
             return {'error': str(e)}, 400
 

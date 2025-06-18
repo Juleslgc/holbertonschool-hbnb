@@ -37,8 +37,6 @@ class HBnBFacade:
 
     def update(self, user_id, data):
         user = self.user_repo.update(user_id, data)
-        if not user:
-            return None
         return self.user_repo.get(user_id)
     
     # Amenity
@@ -53,6 +51,9 @@ class HBnBFacade:
     def get_all_amenities(self):
         amenities = self.amenity_repo.get_all()
         return [amenity.to_dict() for amenity in amenities]
+    
+    def get_amenity_by_id(self, id):
+        return self.amenity_repo.get_by_attribute('id', id)
 
     def update_amenity(self, amenity_id, amenity_data):
         self.amenity_repo.update(amenity_id, amenity_data)
@@ -70,6 +71,9 @@ class HBnBFacade:
     def get_all_places(self):
         places = self.place_repo.get_all()
         return [place.to_dict() for place in places]
+    
+    def get_user_by_id(self, id):
+        return self.place_repo.get_by_attribute('id', id)
 
     def update_place(self, place_id, place_data):
         self.place_repo.update(place_id, place_data)

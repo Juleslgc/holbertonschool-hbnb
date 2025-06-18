@@ -53,6 +53,6 @@ class AmenityResource(Resource):
             return {'error': 'Amenity not found'}, 404
         try:
             update_amenity = facade.update_amenity(amenity_id, amenity_data)
-            return update_amenity.to_dict(), 200
+            return {"message": "Amenity updated successfully"}, 200
         except Exception as e:
             return {'error': str(e)}, 400

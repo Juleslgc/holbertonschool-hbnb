@@ -47,7 +47,7 @@ class PlaceList(Resource):
         place_data = api.payload
         print(place_data)
         try:
-            owner = facade.get_user_by_id(place_data['owner_id'])
+            owner = facade.get_user(place_data['owner_id'])
             if owner is None:
                 return {'error': 'User not found'}, 404
             place = facade.create_place(place_data)

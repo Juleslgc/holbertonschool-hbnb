@@ -20,6 +20,8 @@ class Place(BaseModel):
             raise ValueError("Title is required and must be at 100 most characters")
         if not isinstance(description, str):
             raise TypeError("Description must be a string")
+        if description == "":
+            raise ValueError("Description is required")
         if not isinstance(price, float):
             raise TypeError("Price must be a float number")
         if price < 0:
@@ -32,15 +34,20 @@ class Place(BaseModel):
             raise TypeError("Longitude must be a float")
         if longitude < -180.0 or longitude > 180.0:
             raise ValueError("Longitude must be between -180.0 and 180.0")
-
         if not isinstance(owner_id, str):
             raise TypeError("Owner must be an instance of User")
 
     def add_review(self, review):
         self.reviews.append(review)
 
+    def delete_review(self, review):
+        self.reviews.remove(review)
+
     def add_amenity(self, amenity):
         self.amenities.append(amenity)
+
+    def delete_amenity(self, amenity):
+        self.amenities.remove(amenity)
 
     def to_dict(self):
         from app.services import facade

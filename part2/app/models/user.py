@@ -31,7 +31,6 @@ class User(BaseModel):
             raise ValueError("Last name is required must be characters")
 
         
-
         if not isinstance(is_admin, bool):
             raise TypeError("Is_admin must be boolean type")
     
@@ -62,6 +61,9 @@ class User(BaseModel):
         """
         self.places.append(place)
 
+    def delete_place(self, place):
+        self.places.remove(place)
+
     def to_dict(self):
         return {
             'id': self.id,
@@ -70,10 +72,11 @@ class User(BaseModel):
             'email': self.email
             }
     
-    def verified_email(self, email):
+    @staticmethod
+    def verified_email(email):
         extensions = ['com', 'fr', 'net', 'org']
         pattern = r'^[^@\s]+@[^@\s]+\.(%s)$' % '|'.join(extensions)
         
         if re.match(pattern, email, re.IGNORECASE):
             return email
-        raise ValueError ("Invalid email")
+            
