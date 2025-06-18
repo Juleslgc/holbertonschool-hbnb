@@ -9,6 +9,7 @@ from app.models.place import Place
 from app.models.user import User
 from app.models.review import Review
 
+
 def test_place_creation():
     """
     This  is a test if place creation is valid or not
@@ -26,6 +27,7 @@ def test_place_creation():
     assert place.reviews[0].text == "Great stay!"
     print("Place creation and relationship test passed!")
 
+
 def test_title_creation_invalid():
     """
     This is a test if title creation is valid or not
@@ -34,6 +36,7 @@ def test_title_creation_invalid():
     with pytest.raises(ValueError):
         Place(title="", description="A nice place to stay", price=104.56, latitude=37.7749, longitude=-122.4194, owner_id=owner.id)
     print("Title is Empty")
+
 
 def test_price_positive_number_invalid():
     """
