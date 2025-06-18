@@ -6,8 +6,6 @@ from app.models.place import Place
 
 
 
-
-
 class User(BaseModel):
     def __init__(self, first_name, last_name, email, password, is_admin=False):
         super().__init__()
