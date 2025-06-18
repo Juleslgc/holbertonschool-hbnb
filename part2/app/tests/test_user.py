@@ -2,6 +2,7 @@
 
 
 from app.models.user import User
+import unittest
 
 def test_user_creation():
     user = User(first_name="John", last_name="Doe", email="john.doe@example.com", password="passwordoftheworld")
