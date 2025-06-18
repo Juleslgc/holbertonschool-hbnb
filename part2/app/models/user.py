@@ -45,12 +45,16 @@ class User(BaseModel):
         """
         Add a place to the user
         """
+        if not isinstance(place, Place):
+            raise TypeError("place must be an instance of Place")
         self.places.append(place)
 
-    def to_dict(self, id, first_name, last_name, email):
+    def to_dict(self):
         return {
-            'id': id,
-            'first_name': first_name,
-            'last_name': last_name,
-            'email': email
-            }, 200
+            'id': self.id,
+            'first_name': self.first_name,
+            'last_name': self.last_name,
+            'email': self.email,
+            'created_at': self.created_at.isoformat(),
+            'updated_at': self.updated_at.isoformat()
+            }
