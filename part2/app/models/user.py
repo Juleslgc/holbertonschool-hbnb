@@ -1,4 +1,7 @@
 #!/usr/bin/python3
+"""
+This is a module for interpreting python3
+"""
 
 
 from app.models.base_model import BaseModel
@@ -7,7 +10,13 @@ from app.models.place import Place
 
 
 class User(BaseModel):
+    """
+    Represents a user with information and connect places.
+    """
     def __init__(self, first_name, last_name, email, password, is_admin=False):
+        """
+        Initialize a new instance user.
+        """
         super().__init__()
         self.first_name = first_name
         self.last_name = last_name
@@ -15,6 +24,7 @@ class User(BaseModel):
         self.password = password
         self.is_admin = is_admin
         self.places = []
+
 
         if not isinstance(first_name, str):
             raise TypeError("First name is required")
@@ -37,17 +47,25 @@ class User(BaseModel):
     
 
     def __str__(self):
+        """
+        Return the  string representation of user.
+        """
         return f"first_name: {self.first_name}\n last_name: {self.last_name}\n email: {self.email}"
+
 
     def add_place(self, place):
         """
-        Add a place to the user
+        Add a place to the user.
         """
         if not isinstance(place, Place):
             raise TypeError("place must be an instance of Place")
         self.places.append(place)
 
+
     def to_dict(self):
+        """
+        Return a dictionary representation of the user.
+        """
         return {
             'id': self.id,
             'first_name': self.first_name,

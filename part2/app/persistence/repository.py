@@ -67,12 +67,21 @@ class InMemoryRepository(Repository):
         self._storage[obj.id] = obj
 
     def get(self, obj_id):
+        """
+        Get object from the repository by ID.
+        """
         return self._storage.get(str(obj_id))
 
     def get_all(self):
+        """
+        Get all objects from the repository.
+        """
         return list(self._storage.values())
 
     def update(self, obj_id, data):
+        """
+        Update object and data in the repository
+        """
         obj = self._storage.get(obj_id)
         if obj is None:
             return None
@@ -82,8 +91,14 @@ class InMemoryRepository(Repository):
         return obj
 
     def delete(self, obj_id):
+        """
+        Delete object from the repository by Id
+        """
         if obj_id in self._storage:
             del self._storage[obj_id]
 
     def get_by_attribute(self, attr_name, attr_value):
+        """
+        Get object by attribute value
+        """
         return next((obj for obj in self._storage.values() if getattr(obj, attr_name) == attr_value), None)
