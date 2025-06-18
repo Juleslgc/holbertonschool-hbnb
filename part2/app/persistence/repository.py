@@ -48,21 +48,21 @@ class Repository(ABC):
     @abstractmethod
     def get_by_attribute(self, attr_name, attr_value):
         """
-        Get object by attribute value
+        Get object by attribute value.
         """
         pass
 
 
 class InMemoryRepository(Repository):
     """
-    This is a memory storage for objects with ID attribute
+    This is a memory storage for objects with ID attribute.
     """
     def __init__(self):
         self._storage = {}
 
     def add(self, obj):
         """
-        Add object to the repository
+        Add object to the repository.
         """
         self._storage[obj.id] = obj
 
@@ -80,7 +80,7 @@ class InMemoryRepository(Repository):
 
     def update(self, obj_id, data):
         """
-        Update object and data in the repository
+        Update object and data in the repository.
         """
         obj = self._storage.get(obj_id)
         if obj is None:
@@ -92,13 +92,13 @@ class InMemoryRepository(Repository):
 
     def delete(self, obj_id):
         """
-        Delete object from the repository by Id
+        Delete object from the repository by Id.
         """
         if obj_id in self._storage:
             del self._storage[obj_id]
 
     def get_by_attribute(self, attr_name, attr_value):
         """
-        Get object by attribute value
+        Get object by attribute value.
         """
         return next((obj for obj in self._storage.values() if getattr(obj, attr_name) == attr_value), None)
