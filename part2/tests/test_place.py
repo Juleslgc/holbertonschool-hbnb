@@ -1,13 +1,14 @@
 #!/usr/bin/python3
 
 
+import pytest
 from app.models.place import Place
 from app.models.user import User
 from app.models.review import Review
 
 def test_place_creation():
     owner = User(first_name="Alice", last_name="Smith", email="alice.smith@example.com", password="passwordofworld")
-    place = Place(title="Cozy Apartment", description="A nice place to stay", price=104.56, latitude=37.7749, longitude=-122.4194, owner=owner)
+    place = Place(title="Cozy Apartment", description="A nice place to stay", price=104.56, latitude=37.7749, longitude=-122.4194, owner_id=owner.id)
 
     # Adding a review
     review = Review(comment="Great stay!", rating=5, place=place, user=owner)
@@ -19,4 +20,31 @@ def test_place_creation():
     assert place.reviews[0].comment == "Great stay!"
     print("Place creation and relationship test passed!")
 
-test_place_creation()
+def test_title_creation_invalid():
+    owner = User(first_name="Alice", last_name="Smith", email="alice.smith@example.com", password="passwordofworld")
+    with pytest.raises(ValueError):
+        Place(title="", description="A nice place to stay", price=104.56, latitude=37.7749, longitude=-122.4194, owner_id=owner.id)
+    print("Title is Empty")
+
+def test_price_positive_number_invalid():
+    owner = User(first_name="Alice", last_name="Smith", email="alice.smith@example.com", password="passwordofworld")
+    with pytest.raises(ValueError):
+        Place(title="Title", description="A nice place to stay", price=0, latitude=37.7749, longitude=-122.4194, owner_id=owner.id)
+    print("Price must be a positive number")
+    
+def test_latitude_number_invalid():
+    owner = User(first_name="Alice", last_name="Smith", email="alice.smith@example.com", password="passwordofworld")
+    with pytest.raises(ValueError):
+        Place(title="Title", description="A nice place to stay", price=145, latitude= -91, longitude=-122.4194, owner_id=owner.id)
+    print("Latitude must be between -90.0 and 90.0")
+
+def test_longitude_number_invalid():
+    owner = User(first_name="Alice", last_name="Smith", email="alice.smith@example.com", password="passwordofworld")
+    with pytest.raises(ValueError):
+        Place(title="Title", description="A nice place to stay", price=145, latitude=37.7749, longitude= 200, owner_id=owner.id)
+    print("Longitude must be between -180.0 and 180.0")
+
+def test_invalid_owner_id():
+    with pytest.raises(ValueError):
+       Place(title="Title", description="Description", price=100.0, latitude=30.0, longitude=30.0, owner_id="no_uuid")
+    print("Invalid UUID format test passed")

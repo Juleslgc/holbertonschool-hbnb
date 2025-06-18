@@ -19,7 +19,7 @@ class Place(BaseModel):
 
         if not isinstance(price, float):
             raise TypeError("Price must be a float number")
-        if price < 0:
+        if price <= 0:
             raise ValueError("Price must be a positive number")
 
         if not isinstance(latitude, float):
@@ -39,7 +39,7 @@ class Place(BaseModel):
         except ValueError:
             raise ValueError("Invalid UUID format for owner_id")
 
-        # Assignation des attributs
+ 
         self.title = title
         self.description = description
         self.price = price
