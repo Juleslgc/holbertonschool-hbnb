@@ -1,10 +1,17 @@
 #!/usr/bin/python3
+"""
+This is a module for interpreting python3
+"""
 
 
 from app.models.user import User
 import pytest
 
+
 def test_user_creation():
+    """
+    This is a test for validate user creation
+    """
     user = User(first_name="John", last_name="Doe", email="john.doe@example.com", password="passwordoftheworld")
     assert user.first_name == "John"
     assert user.last_name == "Doe"
@@ -13,22 +20,37 @@ def test_user_creation():
     assert user.places == []
     print("User creation test passed!")
 
+
 def test_user_creation_invalid_first_name():
+    """
+    This is a test for create a valid user (first name is mandatory)
+    """
     with pytest.raises(ValueError):
         User(first_name="", last_name="Doe", email="john.doe@example.com", password="passwordoftheworld")
     print("test_user_creation_invalid_first_name passed")
 
+
 def test_user_creation_invalid_last_name():
+    """
+    This is a test for create a valid user (last_name is mandatory)
+    """
     with pytest.raises(ValueError):
         User(first_name="John", last_name="", email="john.doe@example.com", password="passwordoftheworld")
     print("test_user_creation_invalid_last_name passed")
 
+
 def test_user_creation_invalid_email():
+    """
+    This is a test for created user by validate email (not empty email)
+    """
     with pytest.raises(ValueError):
         User(first_name="John", last_name="Doe", email="", password="passwordoftheworld")
     print("test user_creation_invalid_email passed")
 
 def test_user_invalid_input_mail():
+    """
+    This is a test for standard email format
+    """
     with pytest.raises(ValueError):
         User(first_name="John", last_name="Doe", email="vililili.com", password="passwordoftheworld")
     print("test_user_invalid_input_mail passed")

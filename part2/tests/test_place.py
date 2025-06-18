@@ -1,4 +1,7 @@
 #!/usr/bin/python3
+"""
+This is a module for interpreting python3
+"""
 
 
 import pytest
@@ -7,6 +10,9 @@ from app.models.user import User
 from app.models.review import Review
 
 def test_place_creation():
+    """
+    This  is a test if place creation is valid or not
+    """
     owner = User(first_name="Alice", last_name="Smith", email="alice.smith@example.com", password="passwordofworld")
     place = Place(title="Cozy Apartment", description="A nice place to stay", price=104.56, latitude=37.7749, longitude=-122.4194, owner_id=owner.id)
 
@@ -21,30 +27,48 @@ def test_place_creation():
     print("Place creation and relationship test passed!")
 
 def test_title_creation_invalid():
+    """
+    This is a test if title creation is valid or not
+    """
     owner = User(first_name="Alice", last_name="Smith", email="alice.smith@example.com", password="passwordofworld")
     with pytest.raises(ValueError):
         Place(title="", description="A nice place to stay", price=104.56, latitude=37.7749, longitude=-122.4194, owner_id=owner.id)
     print("Title is Empty")
 
 def test_price_positive_number_invalid():
+    """
+    This is a test if price is positive or greatest than 0 
+    """
     owner = User(first_name="Alice", last_name="Smith", email="alice.smith@example.com", password="passwordofworld")
     with pytest.raises(ValueError):
         Place(title="Title", description="A nice place to stay", price=0.0, latitude=37.7749, longitude=-122.4194, owner_id=owner.id)
     print("Price must be a positive number")
-    
+
+
 def test_latitude_number_invalid():
+    """
+    This is a test if latitude number is wrong or not
+    """
     owner = User(first_name="Alice", last_name="Smith", email="alice.smith@example.com", password="passwordofworld")
     with pytest.raises(ValueError):
         Place(title="Title", description="A nice place to stay", price=145.45, latitude= -91.0, longitude=-122.4194, owner_id=owner.id)
     print("Latitude must be between -90.0 and 90.0")
 
+
 def test_longitude_number_invalid():
+    """
+    This is a test if longitude number is wrong or not
+    """
     owner = User(first_name="Alice", last_name="Smith", email="alice.smith@example.com", password="passwordofworld")
     with pytest.raises(ValueError):
         Place(title="Title", description="A nice place to stay", price=145.45, latitude=37.7749, longitude= 200.0, owner_id=owner.id)
     print("Longitude must be between -180.0 and 180.0")
 
+
 def test_invalid_owner_id():
+    """
+    This is a test if invalid owner id or not
+    """
     with pytest.raises(ValueError):
        Place(title="Title", description="Description", price=100.0, latitude=30.0, longitude=30.0, owner_id="no_uuid")
     print("Invalid UUID format test passed")

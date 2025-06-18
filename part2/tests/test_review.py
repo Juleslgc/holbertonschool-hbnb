@@ -1,4 +1,8 @@
 #!/usr/bin/python3
+"""
+This is a module for interpreting python3
+"""
+
 
 import pytest
 from app.models.user import User
@@ -7,6 +11,9 @@ from app.models.review import Review
 
 
 def test_review_creation_valid():
+    """
+    This is a test for create a validate review
+    """
     user = User(first_name="John", last_name="Doe", email="john.doe@example.com", password="passwordoftheworld")
     owner = User(first_name="Alice", last_name="Smith", email="alice.smith@example.com", password="passwordofworld")
     place = Place(title="Cozy Apartment", description="A nice place to stay", price=104.56, latitude=37.7749, longitude=-122.4194, owner_id=owner.id)
@@ -20,6 +27,9 @@ def test_review_creation_valid():
 
 
 def test_review_text_invalid():
+    """
+    This is a test for verify if review is empty or not (text required)
+    """
     user = User(first_name="John", last_name="Doe", email="john.doe@example.com", password="passwordoftheworld")
     owner = User(first_name="Alice", last_name="Smith", email="alice.smith@example.com", password="passwordofworld")
     place = Place(title="Cozy Apartment", description="A nice place to stay", price=104.56, latitude=37.7749, longitude=-122.4194, owner_id=owner.id)
@@ -30,6 +40,9 @@ def test_review_text_invalid():
 
 
 def test_rating_invalid():
+    """
+    This is a test for wrong rating (only rate between 1 and 5)
+    """
     user = User(first_name="John", last_name="Doe", email="john.doe@example.com", password="passwordoftheworld")
     owner = User(first_name="Alice", last_name="Smith", email="alice.smith@example.com", password="passwordofworld")
     place = Place(title="Cozy Apartment", description="A nice place to stay", price=104.56, latitude=37.7749, longitude=-122.4194, owner_id=owner.id)
@@ -42,6 +55,9 @@ def test_rating_invalid():
 
 
 def test_review_invalid_user():
+    """
+    This is a test for invalid review (user required)
+    """
     with pytest.raises(TypeError):
         user = User(first_name="John", last_name="Doe", email="john.doe@example.com", password="passwordoftheworld")
         owner = User(first_name="Alice", last_name="Smith", email="alice.smith@example.com", password="passwordofworld")
@@ -52,6 +68,9 @@ def test_review_invalid_user():
 
 
 def test_review_invalid_place():
+    """
+    This is a test for invalid place (place required)
+    """
     user = User(first_name="John", last_name="Doe", email="john.doe@example.com", password="passwordoftheworld")
     owner = User(first_name="Alice", last_name="Smith", email="alice.smith@example.com", password="passwordofworld")
     place = Place(title="Cozy Apartment", description="A nice place to stay", price=104.56, latitude=37.7749, longitude=-122.4194, owner_id=owner.id)
