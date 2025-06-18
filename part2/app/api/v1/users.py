@@ -32,7 +32,7 @@ class UserList(Resource):
             return {'error': 'Email already registered'}, 409
 
         new_user = facade.create_user(user_data)
-        return {'id': new_user.id, 'first_name': new_user.first_name, 'last_name': new_user.last_name, 'email': new_user.email}, 201
+        return {'id': new_user.id, 'first_name': new_user.first_name, 'last_name': new_user.last_name, 'email': new_user.email, 'created_at': new_user.created_at}, 201
 
     @api.response(200, 'List of users successfully retrieved')
     def get(self):

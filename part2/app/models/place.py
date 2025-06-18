@@ -1,4 +1,6 @@
+import uuid
 from app.models.base_model import BaseModel
+
 
 class Place(BaseModel):
     def __init__(self, title, price, latitude, longitude, owner_id, description=""):
@@ -31,6 +33,15 @@ class Place(BaseModel):
         if self.longitude < -180.0 or self.longitude > 180.0:
             raise ValueError("Longitude must be between -180.0 and 180.0")
 
+        if not isinstance(owner_id, str):
+            raise TypeError("Owner ID must be a string UUID")
+        try:
+            uuid.UUID(owner_id)
+        except ValueError:
+            raise ValueError("Invalid UUID format for owner_id")
+
+        self.__owner_id = owner_id
+
     def add_review(self, review):
         self.reviews.append(review)
 
@@ -43,4 +54,8 @@ class Place(BaseModel):
 
     @owner_id.setter
     def owner_id(self, new_owner_id):
+        try:
+            uuid.UUID(new_owner_id)
+        except ValueError:
+            raise ValueError("Invalid UUID format for owner_id")
         self.__owner_id = new_owner_id
