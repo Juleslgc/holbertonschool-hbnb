@@ -8,6 +8,8 @@ from app.models.user import User
 from app.models.place import Place
 from app.models.review import Review
 
+
+
 def test_review_creation_valid():
     """
     This is a test for create a validate review.
@@ -22,6 +24,7 @@ def test_review_creation_valid():
     assert review.rating == 5
     print("Review creation valid test passed")
 
+
 def test_review_text_invalid():
     """
     This is a test for verify if review is empty or not (text required).
@@ -32,6 +35,7 @@ def test_review_text_invalid():
     with pytest.raises(ValueError):
         Review(place_id=place.id, user_id=user.id, text='', rating=5)
     print("Review creation text invalid passed")
+
 
 def test_rating_invalid():
     """
@@ -46,6 +50,7 @@ def test_rating_invalid():
         Review(place_id=place.id, user_id=user.id, text='text', rating=0)
     print("Review rating must be between 1 and 5")
 
+
 def test_review_invalid_user():
     """
     This is a test for invalid review (user required).
@@ -56,6 +61,7 @@ def test_review_invalid_user():
     with pytest.raises(ValueError):
         Review(place_id=place.id, user_id="", text='text', rating=5)
     print("Invalid User test passed")
+
 
 def test_review_invalid_place():
     """

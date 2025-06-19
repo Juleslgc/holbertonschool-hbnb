@@ -47,6 +47,7 @@ def test_user_creation_invalid_email():
         User(first_name="John", last_name="Doe", email="", password="passwordoftheworld")
     print("test user_creation_invalid_email passed")
 
+
 def test_user_invalid_input_mail():
     """
     This is a test for standard email format.
