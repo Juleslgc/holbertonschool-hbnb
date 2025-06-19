@@ -23,7 +23,8 @@ user_put_model = api.model('UserPut', {
 class UserList(Resource):
     @api.expect(user_model, validate=True)
     @api.response(201, 'User successfully created')
-    @api.response(400, 'Email already registered or invalid input')
+    @api.response(409, 'Email already registered')
+    @api.response(400, 'Invalid input data')
     def post(self):
         """Register a new user"""
         user_data = api.payload
@@ -31,10 +32,10 @@ class UserList(Resource):
         # Simulate email uniqueness check (to be replaced by real validation with persistence)
         existing_user = facade.get_user_by_email(user_data['email'])
         if existing_user:
-            return {'error': 'Email already registered'}, 400
+            return {'error': 'Email already registered'}, 409
         
         if not User.verified_email(user_data['email']):
-            return {'error': 'Invalid email format'}, 400
+            return {'error': 'Invalid input data'}, 400
 
         new_user = facade.create_user(user_data)
         return {'id': new_user.id, 'first_name': new_user.first_name, 'last_name': new_user.last_name, 'email': new_user.email, 'created_at': new_user.created_at.isoformat()}, 201
@@ -61,7 +62,8 @@ class UserResource(Resource):
     @api.expect(user_put_model, validate=True)
     @api.response(200, 'User is successfully retrieved')
     @api.response(404, 'User does not exist')
-    @api.response(400, 'Email already registered')
+    @api.response(409, 'Email already registered')
+    @api.response(400, 'Invalid input data')
     def put(self, user_id):
         data = api.payload
         user = facade.get_user(user_id)
@@ -71,10 +73,10 @@ class UserResource(Resource):
         try:
             existing_user = facade.get_user_by_email(data['email'])
             if existing_user and existing_user != user:
-                return {"error": "Email already registered"}, 400
+                return {"error": "Email already registered"}, 409
         
             if not User.verified_email(data['email']):
-                return {'error': 'Invalid email format'}, 400
+                return {'error': 'Invalid input data'}, 400
 
             updated_user = facade.update(user_id, data)
             if updated_user is None:
