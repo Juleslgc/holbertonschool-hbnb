@@ -23,7 +23,7 @@ def test_create_amenity_success(amenity_data):
     assert res.json()["name"] == amenity_data["name"]
 
 def test_create_amenity_invalid_input():
-    res = requests.post(AMENITIES_URL, json={})  # missing required field
+    res = requests.post(AMENITIES_URL, json={})
     assert res.status_code == 400
     assert "error" in res.json()
 
@@ -39,7 +39,7 @@ def test_get_amenity_by_id(created_amenity):
 
 def test_get_amenity_not_found():
     res = requests.get(f"{AMENITIES_URL}/nonexistent-id")
-    assert res.status_code == 404 or res.status_code == 400  # dépend de ton exception
+    assert res.status_code == 404 or res.status_code == 400
 
 def test_update_amenity_success(created_amenity):
     updated_data = {
