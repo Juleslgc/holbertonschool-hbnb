@@ -42,6 +42,7 @@ class PlaceList(Resource):
     @api.expect(place_model)
     @api.response(201, 'Place successfully created')
     @api.response(400, 'Invalid input data')
+    @api.response(404, 'User not found')
     def post(self):
         """Register a new place"""
         place_data = api.payload
