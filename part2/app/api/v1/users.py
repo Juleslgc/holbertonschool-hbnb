@@ -1,4 +1,8 @@
 #!/usr/bin/python3
+"""
+This is a module for interpreting python3
+"""
+
 from flask_restx import Namespace, Resource, fields
 from app.services import facade
 from app.models.user import User
@@ -21,12 +25,17 @@ user_put_model = api.model('UserPut', {
 
 @api.route('/')
 class UserList(Resource):
+    """
+    Handles listing and creation of users.
+    """
     @api.expect(user_model, validate=True)
     @api.response(201, 'User successfully created')
     @api.response(409, 'Email already registered')
     @api.response(400, 'Invalid input data')
     def post(self):
-        """Register a new user"""
+        """
+        Register a new user
+        """
         user_data = api.payload
 
         # Simulate email uniqueness check (to be replaced by real validation with persistence)
@@ -50,10 +59,15 @@ class UserList(Resource):
 
 @api.route('/<user_id>')
 class UserResource(Resource):
+    """
+    Handles retrieval, update, and deletion of a specific user.
+    """
     @api.response(200, 'User details retrieved successfully')
     @api.response(404, 'User not found')
     def get(self, user_id):
-        """Get user details by ID"""
+        """
+        Get user details by ID
+        """
         user = facade.get_user(user_id)
         if not user:
             return {'error': 'User not found'}, 404

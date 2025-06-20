@@ -39,11 +39,16 @@ place_model = api.model('Place', {
 
 @api.route('/')
 class PlaceList(Resource):
+    """
+    Handles listing and creation of places.
+    """
     @api.expect(place_model)
     @api.response(201, 'Place successfully created')
     @api.response(400, 'Invalid input data')
     def post(self):
-        """Register a new place"""
+        """
+        Register a new place
+        """
         place_data = api.payload
         print(place_data)
         try:
@@ -57,16 +62,23 @@ class PlaceList(Resource):
 
     @api.response(200, 'List of places retrieved successfully')
     def get(self):
-        """Retrieve a list of all places"""
+        """
+        Retrieve a list of all places
+        """
         place = facade.get_all_places()
         return place, 200
 
 @api.route('/<place_id>')
 class PlaceResource(Resource):
+    """
+    Handles retrieval, update, and deletion of a specific place.
+    """
     @api.response(200, 'Place details retrieved successfully')
     @api.response(404, 'Place not found')
     def get(self, place_id):
-        """Get place details by ID"""
+        """
+        Get place details by ID
+        """
         place = facade.get_place(place_id)
         if not place:
             return {'error': 'Place not found'}, 404
@@ -77,7 +89,9 @@ class PlaceResource(Resource):
     @api.response(404, 'Place not found')
     @api.response(400, 'Invalid input data')
     def put(self, place_id):
-        """Update a place's information"""
+        """
+        Update a place's information
+        """
         place_data = api.payload
         old_place = facade.get_place(place_id)
         if old_place is None:
