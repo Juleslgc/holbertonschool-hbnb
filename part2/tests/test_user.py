@@ -29,7 +29,7 @@ def test_user_creation_invalid_first_name():
         User(first_name="", last_name="Doe", email="john.doe@example.com", password="passwordoftheworld")
     print("test_user_creation_invalid_first_name passed")
 
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         User(first_name=1, last_name="Doe", email="john.doe@example.com", password="passwordoftheworld")
     print("test_user_creation_invalid_first_name passed")
 
@@ -47,7 +47,7 @@ def test_user_creation_invalid_last_name():
         User(first_name="John", last_name="", email="john.doe@example.com", password="passwordoftheworld")
     print("test_user_creation_invalid_last_name passed")
 
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         User(first_name="John", last_name= 2, email="john.doe@example.com", password="passwordoftheworld")
     print("test_user_creation_invalid_first_name passed")
 

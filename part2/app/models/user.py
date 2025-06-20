@@ -111,4 +111,3 @@ class User(BaseModel):
         if not re.match(pattern, email, re.IGNORECASE):
             raise ValueError("Email must be a valid email address")
         return email
-            
