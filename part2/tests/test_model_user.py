@@ -63,6 +63,8 @@ def test_user_creation_invalid_email():
     with pytest.raises(ValueError):
         User(first_name="John", last_name="Doe", email="", password="passwordoftheworld")
     print("test user_creation_invalid_email passed")
+    with pytest.raises(TypeError):
+        User(first_name="John", last_name="Doe", email=1345, password="passwordoftheworld")
 
 
 def test_user_invalid_input_mail():
