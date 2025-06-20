@@ -1,7 +1,12 @@
 from app.models.base_model import BaseModel
+import uuid
 
 
 class Place(BaseModel):
+    """
+    Represents a place with title, price, location,
+    owner, reviews and amenities.
+    """
     def __init__(self, title, price, latitude, longitude, owner_id, description=""):
         super().__init__()
         self.title = title
@@ -24,7 +29,7 @@ class Place(BaseModel):
             raise ValueError("Description is required")
         if not isinstance(price, float):
             raise TypeError("Price must be a float number")
-        if price < 0:
+        if price <= 0:
             raise ValueError("Price must be a positive number")
         if not isinstance(latitude, float):
             raise TypeError("Latitude must be a float")
@@ -34,22 +39,42 @@ class Place(BaseModel):
             raise TypeError("Longitude must be a float")
         if longitude < -180.0 or longitude > 180.0:
             raise ValueError("Longitude must be between -180.0 and 180.0")
-        if not isinstance(owner_id, str):
-            raise TypeError("Owner must be an instance of User")
+        if not isinstance(owner_id, str) or not owner_id:
+            raise ValueError("Owner ID must be a non-empty string")
+        try:
+            uuid.UUID(owner_id)
+        except ValueError:
+            raise ValueError("Owner ID must be a valid UUID")
 
     def add_review(self, review):
+        """
+        Add review to the place review list.
+        """
         self.reviews.append(review)
 
     def delete_review(self, review):
+        """
+        Delete review from the place review list.
+        """
         self.reviews.remove(review)
 
     def add_amenity(self, amenity):
+        """
+        Add amenity to the place amenities list.
+        """
         self.amenities.append(amenity)
 
     def delete_amenity(self, amenity):
+        """
+        Delete amenity from the place amenities list.
+        """
         self.amenities.remove(amenity)
 
     def to_dict(self):
+        """
+        This is a method for return  a dictionary representation
+        of the instance place.
+        """
         from app.services import facade
         return {
             'id': self.id,

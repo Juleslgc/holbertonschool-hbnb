@@ -29,14 +29,31 @@ def test_user_creation_invalid_first_name():
         User(first_name="", last_name="Doe", email="john.doe@example.com", password="passwordoftheworld")
     print("test_user_creation_invalid_first_name passed")
 
+    with pytest.raises(TypeError):
+        User(first_name=1, last_name="Doe", email="john.doe@example.com", password="passwordoftheworld")
+    print("test_user_creation_invalid_first_name passed")
+
+    with pytest.raises(ValueError):
+        User(first_name="kjfuehjenfjfhebnedljrnendkhjrnzkfbrnhjdhenekkchebnrljfnrndejbbfdbrkdedndnjhdhssjkdhdbhnzsjsjnfjrnrncndbk", last_name= "Doe", email="john.doe@example.com", password="passwordoftheworld")
+    print("test_user_creation_invalid_first_name passed")
+
+    
 
 def test_user_creation_invalid_last_name():
     """
-    This is a test for create a valid user (last_name is mandatory).
+    This is a test for create a valid user (last_name is required).
     """
     with pytest.raises(ValueError):
         User(first_name="John", last_name="", email="john.doe@example.com", password="passwordoftheworld")
     print("test_user_creation_invalid_last_name passed")
+
+    with pytest.raises(TypeError):
+        User(first_name="John", last_name= 2, email="john.doe@example.com", password="passwordoftheworld")
+    print("test_user_creation_invalid_first_name passed")
+
+    with pytest.raises(ValueError):
+        User(first_name="John", last_name= "kjfuehjenfjfhebnedljrnendkhjrnzkfbrnhjdhenekkchebnrljfnrndejbbfdbrkdedndnjhdhssjkdhdbhnzsjsjnfjrnrncndbk", email="john.doe@example.com", password="passwordoftheworld")
+    print("test_user_creation_invalid_first_name passed")
 
 
 def test_user_creation_invalid_email():
@@ -61,3 +78,5 @@ def test_user_invalid_input_mail():
     with pytest.raises(ValueError):
         User(first_name="John", last_name="Doe", email="vilililicom", password="passwordoftheworld")
     print("test_user_invalid_input_mail passed")
+
+    
