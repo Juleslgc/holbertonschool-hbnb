@@ -4,6 +4,7 @@ import re
 
 
 class User(BaseModel):
+
     emails = set()
 
     def __init__(self, first_name, last_name, email, password, is_admin=False):
@@ -14,7 +15,7 @@ class User(BaseModel):
         self.is_admin = is_admin
         self.places = []
         self.reviews = []
-        self.hash_password(password)
+        self.password = password
     
     @property
     def first_name(self):
@@ -90,7 +91,7 @@ class User(BaseModel):
         Hashes the password before storing it.
         """
         from app import bcrypt
-        self.password = bcrypt.generate_password_hash(password).decode('utf-8')
+        self.password = password
 
     def verify_password(self, password):
         """
@@ -99,3 +100,12 @@ class User(BaseModel):
         from app import bcrypt
         return bcrypt.check_password_hash(self.password, password)
 
+
+    @property
+    def password(self):
+        return self.__password
+
+    @password.setter
+    def password(self, password_hard):
+        from app import bcrypt
+        self.__password = bcrypt.generate_password_hash(password_hard).decode('utf-8')
