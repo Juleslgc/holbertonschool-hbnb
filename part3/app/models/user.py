@@ -15,7 +15,7 @@ class User(BaseModel):
         self.is_admin = is_admin
         self.places = []
         self.reviews = []
-        self.password = password
+        self.__password = password
     
     @property
     def first_name(self):
@@ -98,12 +98,12 @@ class User(BaseModel):
         Verifies if the provided password matches the hashed password.
         """
         from app import bcrypt
-        return bcrypt.check_password_hash(self.password, password)
+        return bcrypt.check_password_hash(self.__password, password)
 
 
     @property
     def password(self):
-        return self.__password
+        raise AttributeError("Password is denied")
 
     @password.setter
     def password(self, password_hard):
