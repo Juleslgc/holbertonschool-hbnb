@@ -177,3 +177,8 @@ wifi = Amenity(id="a001", name="Wi-Fi")
 
 print(wifi.name)  # Wi-Fi
 ```
+
+## ___Authors___
+
+-[Vithushan Satkunanathan](https://github.com/Vitushan)  
+-[Jules Ventura](https://github.com/Juleslgc)

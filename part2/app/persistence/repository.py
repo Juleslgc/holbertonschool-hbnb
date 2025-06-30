@@ -70,7 +70,11 @@ class InMemoryRepository(Repository):
         """
         Get object from the repository by ID.
         """
+<<<<<<< HEAD
         return self._storage.get(str(obj_id))
+=======
+        return self._storage.get(obj_id)
+>>>>>>> main
 
     def get_all(self):
         """
@@ -82,6 +86,7 @@ class InMemoryRepository(Repository):
         """
         Update object and data in the repository.
         """
+<<<<<<< HEAD
         obj = self._storage.get(obj_id)
         if obj is None:
             return None
@@ -89,6 +94,11 @@ class InMemoryRepository(Repository):
             if hasattr(obj, key):
                 setattr(obj, key, value)
         return obj
+=======
+        obj = self.get(obj_id)
+        if obj:
+            obj.update(data)
+>>>>>>> main
 
     def delete(self, obj_id):
         """

@@ -9,11 +9,16 @@ from app.models.user import User
 from app.models.place import Place
 
 
+
 class Review(BaseModel):
     """
     Represent a review by user for place.
     """
+<<<<<<< HEAD
     def __init__(self, place, user, text, rating):
+=======
+    def __init__(self, place_id, user_id, text, rating):
+>>>>>>> main
         """
         Initialize a new review instance.
         """
@@ -34,6 +39,7 @@ class Review(BaseModel):
         self.text = text
         self.rating = rating
 
+<<<<<<< HEAD
 
     @property
     def place(self):
@@ -71,6 +77,23 @@ class Review(BaseModel):
         self.__user = value
 
 
+=======
+        if not isinstance(text, str) or not text:
+            raise ValueError("Review text must be a not-empty string")
+        
+        if not isinstance(rating, int):
+            raise TypeError("Rating must be a number")
+        if rating < 1 or rating > 5:
+            raise ValueError("Rating must be between 1 and 5")
+
+
+        if not isinstance(user_id, str) or not user_id:
+            raise ValueError("User ID must be a not-empty string")
+
+        if not isinstance(place_id, str) or not place_id:
+            raise ValueError("Place ID must be a non-empty string")
+        
+>>>>>>> main
     def to_dict(self):
         """
         Return a dictionary representation of the review.

@@ -7,8 +7,6 @@ This is a module for interpreting python3
 from app.models.base_model import BaseModel
 from app.models.place import Place
 
-
-
 class User(BaseModel):
     """
     Represents a user with information and connect places.
@@ -27,13 +25,13 @@ class User(BaseModel):
 
 
         if not isinstance(first_name, str):
-            raise TypeError("First name is required")
+            raise TypeError("First name must be a non-empty string and at most 50 characters")
         if len(first_name) > 50 or first_name == "":
             raise ValueError("First name is required must be characters")
 
 
         if not isinstance(last_name, str):
-            raise TypeError("Last name is required")
+            raise TypeError("Last name must be a non-empty string and at most 50 characters")
         if len(last_name) > 50 or last_name == "":
             raise ValueError("Last name is required must be characters")
 
@@ -45,6 +43,38 @@ class User(BaseModel):
         if not isinstance(is_admin, bool):
             raise TypeError("Is_admin must be boolean type")
     
+<<<<<<< HEAD
+=======
+    @property
+    def email(self):
+        """
+        Returns the user's email address.
+        """
+        return self.__email
+    
+    @email.setter
+    def email(self, new_email):
+        """
+        Sets a new, validated email address for the user.
+        """
+        if not isinstance(new_email, str):
+            raise TypeError("email must be strings")
+        self.__email = self.verified_email(new_email)
+    
+    @property
+    def password(self):
+        """
+        Returns the user's password.
+        """
+        return self.__password
+    
+    @password.setter
+    def password(self, new_password):
+        """
+        Sets a new password for the user.
+        """
+        self.__password = new_password
+>>>>>>> main
 
     def __str__(self):
         """
@@ -61,6 +91,14 @@ class User(BaseModel):
             raise TypeError("place must be an instance of Place")
         self.places.append(place)
 
+<<<<<<< HEAD
+=======
+    def delete_place(self, place):
+        """
+        Removes a place from the list.
+        """
+        self.places.remove(place)
+>>>>>>> main
 
     def to_dict(self):
         """
@@ -74,3 +112,18 @@ class User(BaseModel):
             'created_at': self.created_at.isoformat(),
             'updated_at': self.updated_at.isoformat()
             }
+<<<<<<< HEAD
+=======
+    
+    @staticmethod
+    def verified_email(email):
+        """
+        Validate email format with allowed extensions.
+        """
+        extensions = ['com', 'fr', 'net', 'org']
+        pattern = r'^[^@\s]+@[^@\s]+\.(%s)$' % '|'.join(extensions)
+        
+        if not re.match(pattern, email, re.IGNORECASE):
+            raise ValueError("Email must be a valid email address")
+        return email
+>>>>>>> main

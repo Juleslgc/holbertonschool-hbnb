@@ -1,3 +1,11 @@
+<<<<<<< HEAD
+=======
+#!/usr/bin/python3
+"""
+This is a module for interpreting python3
+"""
+
+>>>>>>> main
 from flask_restx import Namespace, Resource, fields
 from app.services import facade
 from app.models.user import User
@@ -20,19 +28,25 @@ user_put_model = api.model('UserPut', {
 
 @api.route('/')
 class UserList(Resource):
+    """
+    Handles listing and creation of users.
+    """
     @api.expect(user_model, validate=True)
     @api.response(201, 'User successfully created')
-    @api.response(400, 'Email already registered or invalid input')
+    @api.response(409, 'Email already registered')
+    @api.response(400, 'Invalid input data')
     def post(self):
-        """Register a new user"""
+        """
+        Register a new user
+        """
         user_data = api.payload
 
         existing_user = facade.get_user_by_email(user_data['email'])
         if existing_user:
-            return {'error': 'Email already registered'}, 400
+            return {'error': 'Email already registered'}, 409
         
         if not User.verified_email(user_data['email']):
-            return {'error': 'Invalid email format'}, 400
+            return {'error': 'Invalid input data'}, 400
 
         new_user = facade.create_user(user_data)
         return {
@@ -50,10 +64,15 @@ class UserList(Resource):
 
 @api.route('/<user_id>')
 class UserResource(Resource):
+    """
+    Handles retrieval, update, and deletion of a specific user.
+    """
     @api.response(200, 'User details retrieved successfully')
     @api.response(404, 'User not found')
     def get(self, user_id):
-        """Get user details by ID"""
+        """
+        Get user details by ID
+        """
         user = facade.get_user(user_id)
         if not user:
             return {'error': 'User not found'}, 404
@@ -65,9 +84,16 @@ class UserResource(Resource):
         }, 200
 
     @api.expect(user_put_model, validate=True)
+<<<<<<< HEAD
     @api.response(200, 'User successfully updated')
     @api.response(404, 'User not found')
     @api.response(400, 'Email already registered or invalid input')
+=======
+    @api.response(200, 'User is successfully retrieved')
+    @api.response(404, 'User does not exist')
+    @api.response(409, 'Email already registered')
+    @api.response(400, 'Invalid input data')
+>>>>>>> main
     def put(self, user_id):
         data = api.payload
         user = facade.get_user(user_id)
@@ -76,11 +102,17 @@ class UserResource(Resource):
 
         if 'email' in data:
             existing_user = facade.get_user_by_email(data['email'])
+<<<<<<< HEAD
             if existing_user and existing_user.id != user.id:
                 return {"error": "Email already registered"}, 400
             
+=======
+            if existing_user and existing_user != user:
+                return {"error": "Email already registered"}, 409
+        
+>>>>>>> main
             if not User.verified_email(data['email']):
-                return {'error': 'Invalid email format'}, 400
+                return {'error': 'Invalid input data'}, 400
 
         updated_user = facade.update(user_id, data)
         if updated_user is None:
