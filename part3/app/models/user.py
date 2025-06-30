@@ -15,7 +15,7 @@ class User(BaseModel):
         self.is_admin = is_admin
         self.places = []
         self.reviews = []
-        self.__password = password
+        self.password = password
     
     @property
     def first_name(self):
@@ -86,20 +86,6 @@ class User(BaseModel):
             'email': self.email
         }
 
-    def hash_password(self, password):
-        """
-        Hashes the password before storing it.
-        """
-        from app import bcrypt
-        self.password = password
-
-    def verify_password(self, password):
-        """
-        Verifies if the provided password matches the hashed password.
-        """
-        from app import bcrypt
-        return bcrypt.check_password_hash(self.__password, password)
-
 
     @property
     def password(self):
@@ -109,3 +95,10 @@ class User(BaseModel):
     def password(self, password_hard):
         from app import bcrypt
         self.__password = bcrypt.generate_password_hash(password_hard).decode('utf-8')
+
+    def verify_password(self, password):
+        from app import bcrypt
+        return bcrypt.check_password_hash(self.__password, password)
+
+
+
