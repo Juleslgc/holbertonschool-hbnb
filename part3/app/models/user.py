@@ -89,7 +89,7 @@ class User(BaseModel):
 
     @property
     def password(self):
-        raise AttributeError("Password is denied")
+        return self.__password
 
     @password.setter
     def password(self, password_hard):
@@ -99,6 +99,3 @@ class User(BaseModel):
     def verify_password(self, password):
         from app import bcrypt
         return bcrypt.check_password_hash(self.__password, password)
-
-
-
