@@ -26,43 +26,56 @@ place_model = api.model('Place', {
     'amenities': fields.List(fields.String, required=True, description="List of amenities ID's")
 })
 
+place_output_model = api.model('PlaceOutput', {
+    'id': fields.String,
+    'title': fields.String,
+    'description': fields.String,
+    'price': fields.Float,
+    'latitude': fields.Float,
+    'longitude': fields.Float,
+    'owner': fields.Nested(user_model),
+    'amenities': fields.List(fields.Nested(amenity_model)),
+})
+
 @api.route('/')
 class PlaceList(Resource):
     @jwt_required()
     @api.expect(place_model)
-    @api.response(201, 'Place successfully created.')
+    @api.marshal_with(place_output_model, code=201)
     @api.response(400, 'Invalid input data.')
     def post(self):
         """Register a new place"""
         place_data = api.payload
         owner_id = get_jwt_identity()
-
+        if isinstance(owner_id, dict):
+            owner_id = owner_id.get('id')
         user = facade.user_repo.get_by_attribute('id', owner_id)
         if not user:
-            return {'error': 'Invalid input data.'}, 400
+            api.abort(400, 'Invalid input data.')
         try:
             place_data['owner_id'] = owner_id
             new_place = facade.create_place(place_data)
-            return new_place.to_dict_list(), 201
+            return new_place, 201
         except Exception as e:
-            return {'error': str(e)}, 400
+            api.abort(400, str(e))
 
+    @api.marshal_with(place_output_model, as_list=True)
     @api.response(200, 'List of places retrieved successfully.')
     def get(self):
         """Retrieve a list of all places"""
-        places = facade.get_all_places()
-        return [place.to_dict() for place in places], 200
+        return facade.get_all_places(), 200
 
 @api.route('/<place_id>')
 class PlaceResource(Resource):
+    @api.marshal_with(place_output_model)
     @api.response(200, 'Place details retrieved successfully.')
     @api.response(404, 'Place not found.')
     def get(self, place_id):
         """Get place details by ID"""
         place = facade.get_place(place_id)
         if not place:
-            return {'error': 'Place not found.'}, 404
-        return place.to_dict_list(), 200
+            api.abort(404, 'Place not found.')
+        return place, 200
 
     @api.expect(place_model)
     @api.response(200, 'Place updated successfully.')
@@ -75,16 +88,17 @@ class PlaceResource(Resource):
         place_data = api.payload
         place = facade.get_place(place_id)
         if not place:
-            return {'error': 'Place not found.'}, 404
-    
+            api.abort(404, 'Place not found.')
         current_user = get_jwt_identity()
-        if place.owner_id != current_user:
-            return {'error': 'Unauthorized action.'}, 403
+        if isinstance(current_user, dict):
+            current_user = current_user.get('id')
+        if place.owner.id != current_user:
+            api.abort(403, 'Unauthorized action.')
         try:
             facade.update_place(place_id, place_data)
             return {'message': 'Place updated successfully.'}, 200
         except Exception as e:
-            return {'error': str(e)}, 400
+            api.abort(400, str(e))
 
 @api.route('/<place_id>/amenities')
 class PlaceAmenities(Resource):
@@ -96,30 +110,26 @@ class PlaceAmenities(Resource):
     @api.response(403, 'Unauthorized action.')
     def post(self, place_id):
         current_user = get_jwt_identity()
-    
+        if isinstance(current_user, dict):
+            current_user = current_user.get('id')
         place = facade.get_place(place_id)
         if not place:
-            return {'error': 'Place not found.'}, 404
-    
-        if place.owner_id != current_user:
-            return {'error': 'Unauthorized action.'}, 403
-        
-
+            api.abort(404, 'Place not found.')
+        if place.owner.id != current_user:
+            api.abort(403, 'Unauthorized action.')
         amenities_data = api.payload
         if not amenities_data or len(amenities_data) == 0:
-            return {'error': 'Invalid input data.'}, 400
-        
-        
+            api.abort(400, 'Invalid input data.')
         for amenity in amenities_data:
             a = facade.get_amenity(amenity['id'])
             if not a:
-                return {'error': 'Invalid input data.'}, 400
-
+                api.abort(400, 'Invalid input data.')
         try:
             facade.add_amenities_to_place(place_id, amenities_data)
             return {'message': 'Amenities added successfully.'}, 200
         except Exception as e:
-            return {'error': str(e)}, 400
+            api.abort(400, str(e))
+
 @api.route('/<place_id>/reviews')
 class PlaceReviewList(Resource):
     @api.response(200, 'List of reviews for the place retrieved successfully.')
@@ -128,5 +138,5 @@ class PlaceReviewList(Resource):
         """Get all reviews for a specific place"""
         place = facade.get_place(place_id)
         if not place:
-            return {'error': 'Place not found.'}, 404
-        return [review.to_dict() for review in place.reviews], 200
+            api.abort(404, 'Place not found.')
+        return place.reviews, 200

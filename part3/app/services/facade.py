@@ -50,18 +50,18 @@ class HBnBFacade:
         if not user:
             raise KeyError('Invalid input data')
         del place_data['owner_id']
-        place_data['owner'] = user
-        amenities = place_data.pop('amenities', None)
-        if amenities:
-            for a in amenities:
+        amenities = place_data.pop('amenities', [])
+        amenities_objs = []
+        for a in amenities:
                 amenity = self.get_amenity(a['id'])
                 if not amenity:
                     raise KeyError('Invalid input data')
+                amenities_objs.append(amenity)
+        place_data['owner'] = user
         place = Place(**place_data)
         self.place_repo.add(place)
         user.add_place(place)
-        if amenities:
-            for amenity in amenities:
+        for amenity in amenities_objs:
                 place.add_amenity(amenity)
         return place
 
@@ -118,3 +118,10 @@ class HBnBFacade:
         user.delete_review(review)
         place.delete_review(review)
         self.review_repo.delete(review_id)
+
+    def get_review_by_user_and_place(self, user_id, place_id):
+    
+        for review in self.review_repo.get_all():
+            if review.user.id == user_id and review.place.id == place_id:
+                return review
+        return None
