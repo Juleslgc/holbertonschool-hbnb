@@ -41,9 +41,6 @@ place_output_model = api.model('PlaceOutput', {
     'price': fields.Float,
     'latitude': fields.Float,
     'longitude': fields.Float,
-    'owner': fields.Nested(user_model),
-    'amenities': fields.List(fields.Nested(amenity_model)),
-    'reviews': fields.List(fields.Nested(review_output_model)),
 })
 
 @api.route('/')

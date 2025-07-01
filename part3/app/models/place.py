@@ -94,4 +94,3 @@ class Place(BaseModel):
             'amenities': [a.to_dict() for a in self.amenities] if self.amenities else [],
             'reviews': [r.to_dict() for r in self.reviews] if self.reviews else []
     }
-
