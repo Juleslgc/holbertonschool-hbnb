@@ -23,7 +23,9 @@ class AmenityList(Resource):
             return {'error': 'Invalid input data'}, 400
         try:
             new_amenity = facade.create_amenity(amenity_data)
-            return new_amenity.to_dict(), 201
+            return new_amenity, 201
+
+
         except Exception as e:
             return {'error': str(e)}, 400
 

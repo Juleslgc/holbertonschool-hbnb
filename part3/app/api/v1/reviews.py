@@ -2,7 +2,6 @@ from flask_restx import Namespace, Resource, fields
 from app.services import facade
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
-
 api = Namespace('reviews', description='Review operations')
 
 # Define the review model for input validation and documentation
@@ -32,15 +31,20 @@ class ReviewList(Resource):
         if isinstance(user_id, dict):
             user_id = user_id.get('id')
         review_data = api.payload
+
         place = facade.get_place(review_data['place_id'])
         if not place:
             api.abort(400, 'Place not found.')
         user = facade.get_user(user_id)
         if not user:
             api.abort(400, 'User not found.')
-        if place.owner.id == user_id:
+
+    
+        owner = place.get("owner") if isinstance(place, dict) else None
+        owner_id = owner.get("id") if owner else None
+        if owner_id == user_id:
             api.abort(400, 'You cannot review your own place.')
-        
+
         existing_review = facade.get_review_by_user_and_place(user_id, review_data['place_id'])
         if existing_review:
             api.abort(400, 'You have already reviewed this place.')
@@ -84,9 +88,10 @@ class ReviewResource(Resource):
         if not review:
             api.abort(404, 'Review not found.')
 
-        if review.user.id != user_id:
+    
+        if review.get("user_id") != user_id:
             api.abort(403, 'Unauthorized action.')
-        
+
         review_data = api.payload
         try:
             facade.update_review(review_id, review_data)
@@ -106,13 +111,13 @@ class ReviewResource(Resource):
         review = facade.get_review(review_id)
         if not review:
             api.abort(404, 'Review not found.')
-        
-        if review.user.id != user_id:
+
+
+        if review.get("user_id") != user_id:
             api.abort(403, 'Unauthorized action.')
-        
+
         try:
             facade.delete_review(review_id)
             return {'message': 'Review deleted successfully.'}, 200
         except Exception as e:
             api.abort(400, str(e))
-

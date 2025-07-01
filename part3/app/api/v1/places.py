@@ -4,6 +4,14 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 
 api = Namespace('places', description='Place operations')
 
+review_output_model = api.model('ReviewOutput', {
+    'id': fields.String,
+    'text': fields.String,
+    'rating': fields.Integer,
+    'user_id': fields.String,
+    'place_id': fields.String,
+})
+
 # Models
 amenity_model = api.model('PlaceAmenity', {
     'id': fields.String(description='Amenity ID'),
@@ -35,6 +43,7 @@ place_output_model = api.model('PlaceOutput', {
     'longitude': fields.Float,
     'owner': fields.Nested(user_model),
     'amenities': fields.List(fields.Nested(amenity_model)),
+    'reviews': fields.List(fields.Nested(review_output_model)),
 })
 
 @api.route('/')
@@ -92,7 +101,7 @@ class PlaceResource(Resource):
         current_user = get_jwt_identity()
         if isinstance(current_user, dict):
             current_user = current_user.get('id')
-        if place.owner.id != current_user:
+        if place["owner"]["id"] != current_user:
             api.abort(403, 'Unauthorized action.')
         try:
             facade.update_place(place_id, place_data)
@@ -115,7 +124,7 @@ class PlaceAmenities(Resource):
         place = facade.get_place(place_id)
         if not place:
             api.abort(404, 'Place not found.')
-        if place.owner.id != current_user:
+        if place["owner"]["id"] != current_user:
             api.abort(403, 'Unauthorized action.')
         amenities_data = api.payload
         if not amenities_data or len(amenities_data) == 0:
@@ -132,11 +141,13 @@ class PlaceAmenities(Resource):
 
 @api.route('/<place_id>/reviews')
 class PlaceReviewList(Resource):
+    @api.marshal_with(review_output_model, as_list=True)
     @api.response(200, 'List of reviews for the place retrieved successfully.')
     @api.response(404, 'Place not found.')
     def get(self, place_id):
         """Get all reviews for a specific place"""
-        place = facade.get_place(place_id)
-        if not place:
+        try:
+            return facade.get_reviews_by_place(place_id), 200
+        except KeyError:
             api.abort(404, 'Place not found.')
-        return place.reviews, 200
+
