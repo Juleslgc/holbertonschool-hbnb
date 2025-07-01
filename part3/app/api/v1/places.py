@@ -43,6 +43,12 @@ place_output_model = api.model('PlaceOutput', {
     'longitude': fields.Float,
 })
 
+place_list_output_model = api.model('PlaceListOutput', {
+    'id': fields.String,
+    'title': fields.String,
+    'price': fields.Float
+})
+
 @api.route('/')
 class PlaceList(Resource):
     @jwt_required()
@@ -65,7 +71,7 @@ class PlaceList(Resource):
         except Exception as e:
             api.abort(400, str(e))
 
-    @api.marshal_with(place_output_model, as_list=True)
+    @api.marshal_with(place_list_output_model, as_list=True)
     @api.response(200, 'List of places retrieved successfully.')
     def get(self):
         """Retrieve a list of all places"""
