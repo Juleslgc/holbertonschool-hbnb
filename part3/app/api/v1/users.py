@@ -27,8 +27,13 @@ class UserList(Resource):
     @api.marshal_with(user_output_model, code=201)
     @api.response(409, 'Email already registered.')
     @api.response(400, 'Invalid input data.')
+    @jwt_required()
     def post(self):
-        """Register a new user"""
+        """Register a new user by admin"""
+        current_user = get_jwt_identity()
+        if not current_user.get("is_admin"):
+            api.abort(403,'error: Admin privileges required.')
+
         user_data = api.payload
         existing_user = facade.get_user_by_email(user_data['email'])
         if existing_user:
@@ -68,8 +73,9 @@ class UserResource(Resource):
     @api.response(403, 'Unauthorized action.')
     def put(self, user_id):
         current_user_id = get_jwt_identity()
-        if user_id != current_user_id:
-            api.abort(403, 'Unauthorized action.')
+        if not current_user_id.get("is_admin"):
+            api.abort(403, "error: Admin privileges required")
+
         user_data = api.payload
         if 'email' in user_data or 'password' in user_data:
             api.abort(400, 'You cannot modify your email or password.')
