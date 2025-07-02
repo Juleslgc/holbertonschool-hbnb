@@ -1,74 +1,63 @@
-from .basemodel import BaseModel
+from .baseclass import BaseModel
 from .user import User
+from app import db
+from sqlalchemy.orm import validates
 
 class Place(BaseModel):
-    def __init__(self, title, price, latitude, longitude, owner, description=None):
-        super().__init__()
-        self.title = title
-        self.description = description
-        self.price = price
-        self.latitude = latitude
-        self.longitude = longitude
-        self.owner = owner
-        self.reviews = []  # List to store related reviews
-        self.amenities = []  # List to store related amenities
+    __tablename__ = 'places'
 
-    @property
-    def title(self):
-        return self.__title
+    title = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.String(300), nullable=False)
+    price = db.Column(db.Float, nullable=False)
+    latitude = db.Column(db.Float, nullable=False)
+    longitude = db.Column(db.Float, nullable=False)
+    owner_id = db.Column(db.String(40), db.ForeignKey('users.id'), nullable=False)
+    owner = db.relationship('User', back_populates='places')
+
+
     
-    @title.setter
-    def title(self, value):
+    @validates('title')
+    def validate_title(self, key, value):
         if not value:
             raise ValueError("Title cannot be empty")
         if not isinstance(value, str):
             raise TypeError("Title must be a string")
         super().is_max_length('title', value, 100)
-        self.__title = value
-
-    @property
-    def price(self):
-        return self.__price
+        return value
     
-    @price.setter
-    def price(self, value):
+    @validates('description')
+    def validate_description(self, key, value):
+        if not isinstance(value, str):
+            raise TypeError("Description must be a string")
+        return value
+    
+    @validates('price')
+    def validate_price(self, key, value):
         if not isinstance(value, float) and not isinstance(value, int):
             raise TypeError("Price must be a float")
         if value < 0:
             raise ValueError("Price must be positive.")
-        self.__price = value
-
-    @property
-    def latitude(self):
-        return self.__latitude
+        return value
     
-    @latitude.setter
-    def latitude(self, value):
+    @validates('latitude')
+    def validate_latitude(self, key, value):
         if not isinstance(value, float):
             raise TypeError("Latitude must be a float")
         super().is_between("latitude", value, -90, 90)
-        self.__latitude = value
+        return value
     
-    @property
-    def longitude(self):
-        return self.__longitude
-    
-    @longitude.setter
-    def longitude(self, value):
+    @validates('longitude')
+    def validate_longitude(self, key, value):
         if not isinstance(value, float):
             raise TypeError("Longitude must be a float")
         super().is_between("longitude", value, -180, 180)
-        self.__longitude = value
-
-    @property
-    def owner(self):
-        return self.__owner
+        return value
     
-    @owner.setter
-    def owner(self, value):
+    @validates('owner')
+    def validate_owner(self, key, value):
         if not isinstance(value, User):
             raise TypeError("Owner must be a user instance")
-        self.__owner = value
+        return value
 
     def add_review(self, review):
         """Add a review to the place."""
