@@ -59,6 +59,16 @@ class PlaceList(Resource):
         """Register a new place"""
         place_data = api.payload
         owner_id = get_jwt_identity()
+
+        title = place_data.get('title', '').strip()
+        if not title:
+            api.abort(400, 'Title cannot be empty.')
+        place_data['title'] = title
+
+        price = place_data.get('price')
+        if price is None or price <= 0:
+            api.abort(400, 'Price must be positive.')
+
         if isinstance(owner_id, dict):
             owner_id = owner_id.get('id')
         user = facade.user_repo.get_by_attribute('id', owner_id)
@@ -98,19 +108,55 @@ class PlaceResource(Resource):
     def put(self, place_id):
         """Update a place's information"""
         place_data = api.payload
+
+        title = place_data.get('title', '').strip()
+        if not title:
+            api.abort(400, 'Title cannot be empty.')
+        place_data['title'] = title
+
+        price = place_data.get('price')
+        if price is None or price <= 0:
+            api.abort(400, 'Price must be positive.')
+
         place = facade.get_place(place_id)
         if not place:
             api.abort(404, 'Place not found.')
-        current_user = get_jwt_identity()
-        if isinstance(current_user, dict):
-            current_user = current_user.get('id')
-        if place["owner"]["id"] != current_user:
+        current = get_jwt_identity()
+        is_admin = current.get('is_admin', False) if isinstance(current, dict) else False
+        user_id = current.get('id') if isinstance(current, dict) else current
+        if not is_admin and place["owner"]["id"] != user_id:
             api.abort(403, 'Unauthorized action.')
+    
         try:
             facade.update_place(place_id, place_data)
-            return {'message': 'Place updated successfully.'}, 200
+            updated_place = facade.get_place(place_id)
+            return updated_place, 200
         except Exception as e:
             api.abort(400, str(e))
+
+    @api.response(403, 'Unauthorized action.')
+    @api.response(404, 'Place not found.')
+    @api.response(200, 'Place deleted successfully.')
+    @jwt_required()
+    def delete(self, place_id):
+        """
+        Delete a place.
+        """
+        current = get_jwt_identity()
+        is_admin = current.get('is_admin', False) if isinstance(current, dict) else False
+        user_id = current.get('id') if isinstance(current, dict) else current
+        place = facade.get_place(place_id)
+        if not place:
+            api.abort(404, 'Place not found.')
+        if not is_admin and place ["owner"]["id"] != user_id:
+            api.abort(403, 'Unauthorized action.')
+        try:
+            facade.delete_place(place_id)
+            return {'message': 'Place deleted successfully.'}, 200
+        except Exception as e:
+            api.abort(400, str(e))
+
+
 
 @api.route('/<place_id>/amenities')
 class PlaceAmenities(Resource):
@@ -121,14 +167,15 @@ class PlaceAmenities(Resource):
     @api.response(400, 'Invalid input data.')
     @api.response(403, 'Unauthorized action.')
     def post(self, place_id):
-        current_user = get_jwt_identity()
-        if isinstance(current_user, dict):
-            current_user = current_user.get('id')
+        current = get_jwt_identity()
+        is_admin = current.get('is_admin', False) if isinstance(current, dict) else False
+        user_id = current.get('id') if isinstance(current, dict) else current
         place = facade.get_place(place_id)
         if not place:
             api.abort(404, 'Place not found.')
-        if place["owner"]["id"] != current_user:
+        if not is_admin and place["owner"]["id"] != user_id:
             api.abort(403, 'Unauthorized action.')
+
         amenities_data = api.payload
         if not amenities_data or len(amenities_data) == 0:
             api.abort(400, 'Invalid input data.')
