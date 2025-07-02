@@ -31,6 +31,16 @@ class ReviewList(Resource):
         if isinstance(user_id, dict):
             user_id = user_id.get('id')
         review_data = api.payload
+    
+        text = review_data.get('text', '').strip()
+        if not text:
+            api.abort(400, 'Review text cannot be empty.')
+        review_data['text'] = text
+
+        rating = review_data.get('rating')
+        if not isinstance(rating, int) or rating < 1 or rating > 5:
+            api.abort(400, 'Rating must be an integer between 1 and 5.')
+
 
         place = facade.get_place(review_data['place_id'])
         if not place:
@@ -81,21 +91,34 @@ class ReviewResource(Resource):
     @api.response(403, 'Unauthorized action.')
     def put(self, review_id):
         """Update a review's information"""
-        user_id = get_jwt_identity()
-        if isinstance(user_id, dict):
-            user_id = user_id.get('id')
+        current = get_jwt_identity()
+        is_admin = current.get('is_admin', False) if isinstance(current, dict) else False
+        user_id = current.get('id') if isinstance(current, dict) else current
+       
         review = facade.get_review(review_id)
         if not review:
             api.abort(404, 'Review not found.')
 
-    
-        if review.get("user_id") != user_id:
+        if not is_admin and review.get("user_id") != user_id:
             api.abort(403, 'Unauthorized action.')
 
         review_data = api.payload
+
+        text = review_data.get('text', '').strip()
+        if not text:
+            api.abort(400, 'Review text cannot be empty.')
+        review_data['text'] = text
+
+        rating = review_data.get('rating')
+        if not isinstance(rating, int) or rating < 1 or rating > 5:
+            api.abort(400, 'Rating must be an integer between 1 and 5.')
+
+
+
         try:
             facade.update_review(review_id, review_data)
-            return {'message': 'Review updated successfully.'}, 200
+            updated_review = facade.get_review(review_id)
+            return updated_review, 200
         except Exception as e:
             api.abort(400, str(e))
 
@@ -105,16 +128,17 @@ class ReviewResource(Resource):
     @api.response(403, 'Unauthorized action.')
     def delete(self, review_id):
         """Delete a review"""
-        user_id = get_jwt_identity()
-        if isinstance(user_id, dict):
-            user_id = user_id.get('id')
+        current = get_jwt_identity()
+        is_admin = current.get('is_admin', False) if isinstance(current, dict) else False
+        user_id = current.get('id') if isinstance(current, dict) else current
+       
         review = facade.get_review(review_id)
         if not review:
             api.abort(404, 'Review not found.')
 
-
-        if review.get("user_id") != user_id:
+        if not is_admin and review.get("user_id") != user_id:
             api.abort(403, 'Unauthorized action.')
+
 
         try:
             facade.delete_review(review_id)

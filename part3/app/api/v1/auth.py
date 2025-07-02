@@ -17,6 +17,8 @@ class Login(Resource):
         """Authenticate user and return a JWT token"""
         credentials = api.payload  # Get the email and password from the request payload
         
+        if not credentials or 'email' not in credentials or 'password' not in credentials:
+            return {'error': 'Email and password are required.'}, 400
         # Step 1: Retrieve the user based on the provided email
         user = facade.get_user_by_email(credentials['email'])
         

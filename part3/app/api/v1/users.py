@@ -1,7 +1,7 @@
 from flask_restx import Namespace, Resource, fields
 from app.services import facade
 from flask_bcrypt import Bcrypt
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 
 bcrypt = Bcrypt()
 
@@ -27,17 +27,21 @@ class UserList(Resource):
     @api.marshal_with(user_output_model, code=201)
     @api.response(409, 'Email already registered.')
     @api.response(400, 'Invalid input data.')
+    @api.response(403, 'Admin privileges required.')
     @jwt_required()
     def post(self):
         """Register a new user by admin"""
-        current_user = get_jwt_identity()
-        if not current_user.get("is_admin"):
-            api.abort(403,'error: Admin privileges required.')
+        claims = get_jwt()
+        if not claims.get("is_admin"):
+            api.abort(403, 'Admin privileges required.')
 
         user_data = api.payload
         existing_user = facade.get_user_by_email(user_data['email'])
         if existing_user:
             api.abort(409, 'Email already registered.')
+
+  
+        user_data['password'] = bcrypt.generate_password_hash(user_data['password']).decode('utf-8')
         try:
             new_user = facade.create_user(user_data)
             return new_user, 201
@@ -70,18 +74,32 @@ class UserResource(Resource):
     @api.response(200, 'User updated successfully.')
     @api.response(404, 'User not found.')
     @api.response(400, 'Invalid input data.')
-    @api.response(403, 'Unauthorized action.')
+    @api.response(403, 'Admin privileges required.')
     def put(self, user_id):
-        current_user_id = get_jwt_identity()
-        if not current_user_id.get("is_admin"):
-            api.abort(403, "error: Admin privileges required")
+        claims = get_jwt()
+        if not claims.get("is_admin"):
+            api.abort(403, "Admin privileges required.")
 
         user_data = api.payload
-        if 'email' in user_data or 'password' in user_data:
-            api.abort(400, 'You cannot modify your email or password.')
         user = facade.get_user(user_id)
         if not user:
             api.abort(404, 'User not found.')
+
+        for field in ['first_name', 'last_name', 'email', 'password']:
+            if field in user_data and not user_data[field].strip():
+                api.abort(400, f"{field.replace('_', ' ').capitalize()} cannot be empty.")
+
+
+        email = user_data.get('email')
+        if email:
+            existing_user = facade.get_user_by_email(email)
+            if existing_user and existing_user.id != user_id:
+                api.abort(409, 'Email already registered.')
+
+        password = user_data.get('password')
+        if password:
+            user_data['password'] = bcrypt.generate_password_hash(password).decode('utf-8')
+
         try:
             facade.update_user(user_id, user_data)
             updated_user = facade.get_user(user_id)
