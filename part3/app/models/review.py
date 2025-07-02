@@ -1,4 +1,4 @@
-from .basemodel import BaseModel
+from .baseclass import BaseModel
 from .place import Place
 from .user import User
 from app import db
@@ -10,6 +10,10 @@ class Review(BaseModel):
 
 	text = db.Column(db.String(100), nullable=False)
 	rating = db.Column(db.Integer, nullable=False)
+	place_id = db.Column(db.String(40), db.ForeignKey('places.id'), nullable=False)
+	place = db.relationship('Place', backref='reviews', lazy=True)
+	user_id = db.Column(db.String(40), db.ForeignKey('users.id'), nullable=False)
+	user = db.relationship('User', backref='reviews', lazy=True, cascade='all, delete-orphan')
 
 
 	"""def __init__(self, text, rating, place, user):

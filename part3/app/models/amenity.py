@@ -3,11 +3,10 @@ from app import db
 from sqlalchemy.orm import validates
 
 class Amenity(BaseModel):
-	
-    __tablename__ = 'ametinies'
-	
-    name = db.Column(db.String(100), nullable=False)
 
+	__tablename__ = 'ametinies'
+
+	name = db.Column(db.String(100), nullable=False)
 
 	@validates('name')
 	def validate_name(self, key, value):
@@ -20,7 +19,7 @@ class Amenity(BaseModel):
 
 	def update(self, data):
 		return super().update(data)
-	
+
 	def to_dict(self):
 		return {
 			'id': self.id,

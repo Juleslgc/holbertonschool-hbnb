@@ -3,6 +3,12 @@ from .user import User
 from app import db
 from sqlalchemy.orm import validates
 
+# Association table for many-to-many relationship
+amenity_place = db.Table('amenity_place',
+                         db.Column('amenity_id', db.String(40), db.ForeignKey('amenities.id'), primary_key=True),
+                         db.Column('place_id', db.String(40), db.ForeignKey('places.id'), primary_key=True)
+                        )
+
 class Place(BaseModel):
     __tablename__ = 'places'
 
@@ -12,8 +18,10 @@ class Place(BaseModel):
     latitude = db.Column(db.Float, nullable=False)
     longitude = db.Column(db.Float, nullable=False)
     owner_id = db.Column(db.String(40), db.ForeignKey('users.id'), nullable=False)
-    owner = db.relationship('User', back_populates='places')
-
+    owner = db.relationship('User', backref='places', lazy=True)
+    reviews = db.relationship('Review', backref='place', lazy=True, cascade='all, delete-orphan')
+    amenities = db.relationship('Amenity', secondary=amenity_place, lazy='subquery',
+                                backref=db.backref('places', lazy=True))
 
     
     @validates('title')
