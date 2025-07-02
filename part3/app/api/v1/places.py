@@ -157,7 +157,6 @@ class PlaceResource(Resource):
             api.abort(400, str(e))
 
 
-
 @api.route('/<place_id>/amenities')
 class PlaceAmenities(Resource):
     @jwt_required()
