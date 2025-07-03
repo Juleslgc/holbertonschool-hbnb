@@ -121,10 +121,12 @@ class PlaceResource(Resource):
         place = facade.get_place(place_id)
         if not place:
             api.abort(404, 'Place not found.')
+
         current = get_jwt_identity()
         is_admin = current.get('is_admin', False) if isinstance(current, dict) else False
         user_id = current.get('id') if isinstance(current, dict) else current
-        if not is_admin and place["owner"]["id"] != user_id:
+
+        if not is_admin and place.get("owner", {}).get("id") != user_id:
             api.abort(403, 'Unauthorized action.')
     
         try:
