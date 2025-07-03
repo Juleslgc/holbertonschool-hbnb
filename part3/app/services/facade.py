@@ -6,6 +6,7 @@ from app.models.user import User
 from app.models.amenity import Amenity
 from app.models.place import Place
 from app.models.review import Review
+from app import db
 
 class HBnBFacade:
     def __init__(self):
@@ -56,17 +57,16 @@ class HBnBFacade:
         del place_data['owner_id']
         place_data['owner'] = user
         amenities = place_data.pop('amenities', None)
+        place = Place(**place_data)
         if amenities:
             for a in amenities:
                 amenity = self.get_amenity(a['id'])
                 if not amenity:
                     raise KeyError('Invalid input data')
-        place = Place(**place_data)
+                place.amenities.append(amenity)
         self.place_repo.add(place)
         user.add_place(place)
-        if amenities:
-            for amenity in amenities:
-                place.add_amenity(amenity)
+        db.session.commit()
         return place
 
     def get_place(self, place_id):

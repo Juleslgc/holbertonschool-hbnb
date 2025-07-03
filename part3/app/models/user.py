@@ -27,6 +27,8 @@ class User(BaseModel):
     def validate_first_name(self, key, value):
         if not isinstance(value, str):
             raise TypeError("First name must be a string")
+        if not value or value.strip() == "":
+            raise ValueError("First name must not be empty")
         super().is_max_length('First name', value, 50)
         return value
 
@@ -34,6 +36,8 @@ class User(BaseModel):
     def validate_last_name(self, key, value):
         if not isinstance(value, str):
             raise TypeError("Last name must be a string")
+        if not value or value.strip() == "":
+            raise ValueError("Last name must not be empty")
         super().is_max_length('Last name', value, 50)
         return value
     
@@ -55,6 +59,8 @@ class User(BaseModel):
     def validate_is_admin(self, key, value):
         if not isinstance(value, bool):
             raise TypeError("Is Admin must be a boolean")
+        if not value or value.strip() == "":
+            raise ValueError("Is Admin must not be empty")
         return value
 
     def add_place(self, place):

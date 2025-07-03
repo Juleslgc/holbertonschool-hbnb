@@ -13,19 +13,10 @@ class Review(BaseModel):
 	place_id = db.Column(db.String(40), db.ForeignKey('places.id'), nullable=False)
 	place = db.relationship('Place', backref='reviews', lazy=True)
 	user_id = db.Column(db.String(40), db.ForeignKey('users.id'), nullable=False)
-	user = db.relationship('User', backref='reviews', lazy=True, cascade='all, delete-orphan')
-
-
-	"""def __init__(self, text, rating, place, user):
-		super().__init__()
-		self.text = text
-		self.rating = rating
-		self.place = place
-		self.user = user"""
 
 	@validates('text')
 	def validate_text(self, key, value):
-		if not value:
+		if not value or value.strip() == "":
 			raise ValueError("Text cannot be empty")
 		if not isinstance(value, str):
 			raise TypeError("Text must be a string")
@@ -35,6 +26,8 @@ class Review(BaseModel):
 	def validate_rating(self, key, value):
 		if not isinstance(value, int):
 			raise TypeError("Rating must be an integer")
+		if not value:
+			raise ValueError("Rating must not be empty")
 		super().is_between('Rating', value, 1, 6)
 		return value
 	
@@ -42,12 +35,16 @@ class Review(BaseModel):
 	def validate_place(self, key, value):
 		if not isinstance(value, Place):
 			raise TypeError("Place must be a place instance")
+		if not value:
+			raise ValueError("Place must not be empty")
 		return value
 	
 	@validates('user')
 	def validate_user(self, key, value):
 		if not isinstance(value, User):
 			raise TypeError("User must be a user instance")
+		if not value:
+			raise ValueError("User must not be empty")
 		return value
 
 	def to_dict(self):

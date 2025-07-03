@@ -4,7 +4,7 @@ from sqlalchemy.orm import validates
 
 class Amenity(BaseModel):
 
-	__tablename__ = 'ametinies'
+	__tablename__ = 'amenities'
 
 	name = db.Column(db.String(100), nullable=False)
 
@@ -12,7 +12,7 @@ class Amenity(BaseModel):
 	def validate_name(self, key, value):
 		if not isinstance(value, str):
 			raise TypeError("Name must be a string")
-		if not value:
+		if not value or value.strip() == "":
 			raise ValueError("Name cannot be empty")
 		super().is_max_length('Name', value, 50)
 		return value

@@ -85,26 +85,37 @@ class PlaceResource(Resource):
 
 @api.route('/<place_id>/amenities')
 class PlaceAmenities(Resource):
-    @api.expect(amenity_model)
+    @api.expect([amenity_model])
     @api.response(200, 'Amenities added successfully')
     @api.response(404, 'Place not found')
     @api.response(400, 'Invalid input data')
     def post(self, place_id):
         amenities_data = api.payload
-        if not amenities_data or len(amenities_data) == 0:
+
+        if not amenities_data:
+            return {'error': 'Invalid input data'}, 400
+        
+        if isinstance(amenities_data, dict):
+            amenities_data = [amenities_data]
+        elif not isinstance(amenities_data, list):
             return {'error': 'Invalid input data'}, 400
         
         place = facade.get_place(place_id)
         if not place:
             return {'error': 'Place not found'}, 404
         
-        for amenity in amenities_data:
-            a = facade.get_amenity(amenity['id'])
-            if not a:
-                return {'error': 'Invalid input data'}, 400
+        for amenity_dict in amenities_data:
+            if not isinstance(amenity_dict, dict) or 'id' not in amenity_dict or 'name' not in amenity_dict:
+                return {'error': 'Each amenity must have id and name'}, 400
+
+            amenity_obj = facade.get_amenity(amenity_dict['id'])
+            if not amenity_obj:
+                return {'error': f"Amenity with id {amenity_dict['id']} not found"}, 400
         
-        for amenity in amenities_data:
-            place.add_amenity(amenity)
+        for amenity_dict in amenities_data:
+            amenity_obj = facade.get_amenity(amenity_dict['id'])
+            place.add_amenity(amenity_obj)
+        
         return {'message': 'Amenities added successfully'}, 200
 
 @api.route('/<place_id>/reviews/')
