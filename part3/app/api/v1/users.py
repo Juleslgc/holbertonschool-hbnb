@@ -12,7 +12,7 @@ user_model = api.model('User', {
     'last_name': fields.String(required=True, description='Last name of the user'),
     'email': fields.String(required=True, description='Email of the user'),
     'password': fields.String(required=True, description='User password'),
-    
+
 })
 
 user_output_model = api.model('UserOutput', {
@@ -29,9 +29,8 @@ class UserList(Resource):
     @api.response(409, 'Email already registered.')
     @api.response(400, 'Invalid input data.')
     @api.response(403, 'Admin privileges required.')
-    @jwt_required()
     def post(self):
-        """Register a new user by admin"""
+        """Register the first user as admin, others only by admin"""
         user_data = api.payload
         existing_user = facade.get_user_by_email(user_data['email'])
         if existing_user:
