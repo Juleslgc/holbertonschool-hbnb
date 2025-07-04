@@ -11,7 +11,8 @@ user_model = api.model('User', {
     'first_name': fields.String(required=True, description='First name of the user'),
     'last_name': fields.String(required=True, description='Last name of the user'),
     'email': fields.String(required=True, description='Email of the user'),
-    'password': fields.String(required=True, description='User password')
+    'password': fields.String(required=True, description='User password'),
+    
 })
 
 user_output_model = api.model('UserOutput', {
@@ -31,15 +32,16 @@ class UserList(Resource):
     @jwt_required()
     def post(self):
         """Register a new user by admin"""
-        claims = get_jwt()
-        if not claims.get("is_admin"):
-            api.abort(403, 'Admin privileges required.')
-
         user_data = api.payload
         existing_user = facade.get_user_by_email(user_data['email'])
         if existing_user:
             api.abort(409, 'Email already registered.')
 
+        all_users = facade.get_users()
+        if not all_users:
+            user_data['is_admin'] = True
+        else:
+            user_data['is_admin'] = False
   
         user_data['password'] = bcrypt.generate_password_hash(user_data['password']).decode('utf-8')
         try:

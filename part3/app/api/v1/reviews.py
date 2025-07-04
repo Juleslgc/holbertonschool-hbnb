@@ -114,7 +114,6 @@ class ReviewResource(Resource):
             api.abort(400, 'Rating must be an integer between 1 and 5.')
 
 
-
         try:
             facade.update_review(review_id, review_data)
             updated_review = facade.get_review(review_id)
