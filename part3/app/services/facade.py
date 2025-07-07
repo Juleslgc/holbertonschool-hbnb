@@ -13,9 +13,16 @@ class HBnBFacade:
 
     # USER
     def create_user(self, user_data):
-        user = User(**user_data)
+        user = User(
+            first_name=user_data['first_name'],
+            last_name=user_data['last_name'],
+            email=user_data['email'],
+            is_admin=user_data.get('is_admin', False)
+        )
+
+        user.password = user_data['password']
         self.user_repo.add(user)
-        return user.to_dict()
+        return user
 
     def get_users(self):
         return [user.to_dict() for user in self.user_repo.get_all()]

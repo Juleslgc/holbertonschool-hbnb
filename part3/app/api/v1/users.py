@@ -5,21 +5,31 @@ from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 
 bcrypt = Bcrypt()
 
-api = Namespace('users', description='User operations')
+authorizations = {
+        'Bearer Auth': {
+        'type': 'apiKey',
+        'in': 'header',
+        'name': 'Authorization',
+        'description': "Enter 'Bearer' followed by your JWT token"
+    }
+}
+
+api = Namespace('users', description='User operations', authorizations=authorizations, security='Bearer Auth')
 
 user_model = api.model('User', {
     'first_name': fields.String(required=True, description='First name of the user'),
     'last_name': fields.String(required=True, description='Last name of the user'),
     'email': fields.String(required=True, description='Email of the user'),
     'password': fields.String(required=True, description='User password'),
-
+    'is_admin': fields.Boolean(required=False, description='Set to true to create an admin user', default=False)
 })
 
 user_output_model = api.model('UserOutput', {
     'id': fields.String,
     'first_name': fields.String,
     'last_name': fields.String,
-    'email': fields.String
+    'email': fields.String,
+    'is_admin': fields.Boolean(required=False, description='Set to true to create an admin user', default=False)
 })
 
 @api.route('/')
@@ -29,6 +39,8 @@ class UserList(Resource):
     @api.response(409, 'Email already registered.')
     @api.response(400, 'Invalid input data.')
     @api.response(403, 'Admin privileges required.')
+    @jwt_required(optional=True)
+    @api.doc(security='Bearer Auth')
     def post(self):
         """Register the first user as admin, others only by admin"""
         user_data = api.payload
@@ -40,9 +52,11 @@ class UserList(Resource):
         if not all_users:
             user_data['is_admin'] = True
         else:
-            user_data['is_admin'] = False
-  
-        user_data['password'] = bcrypt.generate_password_hash(user_data['password']).decode('utf-8')
+         claims = get_jwt() if get_jwt_identity() else {}
+        if not claims or not claims.get('is_admin'):
+            api.abort(403, 'Admin privileges required.')
+        user_data['is_admin'] = False
+
         try:
             new_user = facade.create_user(user_data)
             return new_user, 201
@@ -59,6 +73,7 @@ class UserList(Resource):
 @api.route('/<user_id>')
 class UserResource(Resource):
     @jwt_required()
+    @api.doc(security='Bearer Auth')
     @api.marshal_with(user_output_model)
     @api.response(200, 'User details retrieved successfully.')
     @api.response(404, 'User not found.')
@@ -70,6 +85,7 @@ class UserResource(Resource):
         return user, 200
 
     @jwt_required()
+    @api.doc(security='Bearer Auth')
     @api.expect(user_model)
     @api.marshal_with(user_output_model)
     @api.response(200, 'User updated successfully.')
@@ -89,7 +105,6 @@ class UserResource(Resource):
         for field in ['first_name', 'last_name', 'email', 'password']:
             if field in user_data and not user_data[field].strip():
                 api.abort(400, f"{field.replace('_', ' ').capitalize()} cannot be empty.")
-
 
         email = user_data.get('email')
         if email:

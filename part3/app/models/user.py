@@ -7,15 +7,16 @@ class User(BaseModel):
 
     emails = set()
 
-    def __init__(self, first_name, last_name, email, password, is_admin=False):
+    def __init__(self, first_name, last_name, email, is_admin=False):
         super().__init__()
         self.first_name = first_name
         self.last_name = last_name
+        self._email = None
         self.email = email
         self.is_admin = is_admin
         self.places = []
         self.reviews = []
-        self.password = password
+        self.password_hash = None
     
     @property
     def first_name(self):
@@ -41,7 +42,7 @@ class User(BaseModel):
 
     @property
     def email(self):
-        return self.__email
+        return self._email
 
     @email.setter
     def email(self, value):
@@ -49,11 +50,15 @@ class User(BaseModel):
             raise TypeError("Email must be a string")
         if not re.match(r"[^@]+@[^@]+\.[^@]+", value):
             raise ValueError("Invalid email format")
+        
+        if self._email == value:
+            return
+
         if value in User.emails:
             raise ValueError("Email already exists")
-        if hasattr(self, "_User__email"):
-            User.emails.discard(self.__email)
-        self.__email = value
+        if self._email:
+            User.emails.discard(self._email)
+        self._email = value
         User.emails.add(value)
 
     @property
@@ -78,24 +83,28 @@ class User(BaseModel):
         """Add an amenity to the place."""
         self.reviews.remove(review)
 
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'first_name': self.first_name,
-            'last_name': self.last_name,
-            'email': self.email
-        }
-
 
     @property
     def password(self):
         return self.__password
 
     @password.setter
-    def password(self, password_hard):
+    def password(self, value):
         from app import bcrypt
-        self.__password = bcrypt.generate_password_hash(password_hard).decode('utf-8')
+        if not isinstance(value, str):
+            raise TypeError("password must be a string")
+        hashed = bcrypt.generate_password_hash(value).decode('utf-8')
+        self.__password = hashed
 
     def verify_password(self, password):
         from app import bcrypt
-        return bcrypt.check_password_hash(self.__password, password)
+        return self.__password and bcrypt.check_password_hash(self.__password, password)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'first_name': self.first_name,
+            'last_name': self.last_name,
+            'email': self.email,
+            'is_admin': self.is_admin
+        }
