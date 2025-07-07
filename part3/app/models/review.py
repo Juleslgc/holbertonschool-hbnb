@@ -46,12 +46,14 @@ class Review(BaseModel):
 		if not value:
 			raise ValueError("User must not be empty")
 		return value
-
+	
 	def to_dict(self):
 		return {
-			'id': self.id,
-			'text': self.text,
-			'rating': self.rating,
-			'place_id': self.place.id,
-			'user_id': self.user.id
-		}
+            'id': self.id,
+            'text': self.text,
+            'rating': self.rating,
+            'place_id': self.place.id,
+            'user_id': self.user.id
+        }
+    
+        

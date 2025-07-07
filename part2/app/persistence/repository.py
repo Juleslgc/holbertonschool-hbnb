@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 
+
 class Repository(ABC):
     """
     This is a abstract base class for CRUD method.
@@ -11,12 +12,14 @@ class Repository(ABC):
         """
         pass
 
+
     @abstractmethod
     def get(self, obj_id):
         """
         Get object by ID.
         """
         pass
+
 
     @abstractmethod
     def get_all(self):
@@ -25,6 +28,7 @@ class Repository(ABC):
         """
         pass
 
+
     @abstractmethod
     def update(self, obj_id, data):
         """
@@ -32,12 +36,14 @@ class Repository(ABC):
         """
         pass
 
+
     @abstractmethod
     def delete(self, obj_id):
         """
         Delete object by ID.
         """
         pass
+
 
     @abstractmethod
     def get_by_attribute(self, attr_name, attr_value):
@@ -64,7 +70,11 @@ class InMemoryRepository(Repository):
         """
         Get object from the repository by ID.
         """
+<<<<<<< HEAD
+        return self._storage.get(str(obj_id))
+=======
         return self._storage.get(obj_id)
+>>>>>>> main
 
     def get_all(self):
         """
@@ -76,9 +86,19 @@ class InMemoryRepository(Repository):
         """
         Update object and data in the repository.
         """
+<<<<<<< HEAD
+        obj = self._storage.get(obj_id)
+        if obj is None:
+            return None
+        for key, value in data.items():
+            if hasattr(obj, key):
+                setattr(obj, key, value)
+        return obj
+=======
         obj = self.get(obj_id)
         if obj:
             obj.update(data)
+>>>>>>> main
 
     def delete(self, obj_id):
         """

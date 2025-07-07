@@ -3,6 +3,8 @@ import re
 from app import db, bcrypt
 from sqlalchemy.orm import validates
 
+
+
 class User(BaseModel):
 
     __tablename__ = 'users'
@@ -75,10 +77,28 @@ class User(BaseModel):
         """Add an amenity to the place."""
         self.reviews.remove(review)
 
+
+    @property
+    def password(self):
+        return self.__password
+
+    @password.setter
+    def password(self, value):
+        from app import bcrypt
+        if not isinstance(value, str):
+            raise TypeError("password must be a string")
+        hashed = bcrypt.generate_password_hash(value).decode('utf-8')
+        self.__password = hashed
+
+    def verify_password(self, password):
+        from app import bcrypt
+        return self.__password and bcrypt.check_password_hash(self.__password, password)
+
     def to_dict(self):
         return {
             'id': self.id,
             'first_name': self.first_name,
             'last_name': self.last_name,
-            'email': self.email
+            'email': self.email,
+            'is_admin': self.is_admin
         }

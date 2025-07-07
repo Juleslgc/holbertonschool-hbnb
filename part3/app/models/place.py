@@ -79,7 +79,7 @@ class Place(BaseModel):
         self.reviews.append(review)
     
     def delete_review(self, review):
-        """Add an amenity to the place."""
+        """Remove a review from the place."""
         self.reviews.remove(review)
 
     def add_amenity(self, amenity):
@@ -95,6 +95,7 @@ class Place(BaseModel):
             'price': self.price,
             'latitude': self.latitude,
             'longitude': self.longitude,
+<<<<<<< HEAD
             'owner_id': self.owner.id
         }
     
@@ -110,3 +111,9 @@ class Place(BaseModel):
             'amenities': [{'id': a.id, 'name': a.name} for a in self.amenities],
             'reviews': [review.to_dict() for review in self.reviews]
         }
+=======
+            'owner': self.owner.to_dict() if self.owner else None,
+            'amenities': [a.to_dict() for a in self.amenities] if self.amenities else [],
+            'reviews': [r.to_dict() for r in self.reviews] if self.reviews else []
+    }
+>>>>>>> vitushan

@@ -1,65 +1,124 @@
 from flask_restx import Namespace, Resource, fields
 from app.services import facade
+from flask_bcrypt import Bcrypt
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 
-api = Namespace('users', description='User operations')
+bcrypt = Bcrypt()
 
-# Define the user model for input validation and documentation
+authorizations = {
+        'Bearer Auth': {
+        'type': 'apiKey',
+        'in': 'header',
+        'name': 'Authorization',
+        'description': "Enter 'Bearer' followed by your JWT token"
+    }
+}
+
+api = Namespace('users', description='User operations', authorizations=authorizations, security='Bearer Auth')
+
 user_model = api.model('User', {
     'first_name': fields.String(required=True, description='First name of the user'),
     'last_name': fields.String(required=True, description='Last name of the user'),
     'email': fields.String(required=True, description='Email of the user'),
-    'password': fields.String(required=True, description='Password of the user')
+    'password': fields.String(required=True, description='User password'),
+    'is_admin': fields.Boolean(required=False, description='Set to true to create an admin user', default=False)
+})
+
+user_output_model = api.model('UserOutput', {
+    'id': fields.String,
+    'first_name': fields.String,
+    'last_name': fields.String,
+    'email': fields.String,
+    'is_admin': fields.Boolean(required=False, description='Set to true to create an admin user', default=False)
 })
 
 @api.route('/')
 class UserList(Resource):
     @api.expect(user_model, validate=True)
-    @api.response(201, 'User successfully created')
-    @api.response(409, 'Email already registered')
-    @api.response(400, 'Invalid input data')
+    @api.marshal_with(user_output_model, code=201)
+    @api.response(409, 'Email already registered.')
+    @api.response(400, 'Invalid input data.')
+    @api.response(403, 'Admin privileges required.')
+    @jwt_required(optional=True)
+    @api.doc(security='Bearer Auth')
     def post(self):
-        """Register a new user"""
+        """Register the first user as admin, others only by admin"""
         user_data = api.payload
-
-        # Simulate email uniqueness check (to be replaced by real validation with persistence)
         existing_user = facade.get_user_by_email(user_data['email'])
         if existing_user:
-            return {'error': 'Email already registered'}, 409
+            api.abort(409, 'Email already registered.')
+
+        all_users = facade.get_users()
+        if not all_users:
+            user_data['is_admin'] = True
+        else:
+         claims = get_jwt() if get_jwt_identity() else {}
+        if not claims or not claims.get('is_admin'):
+            api.abort(403, 'Admin privileges required.')
+        user_data['is_admin'] = False
 
         try:
             new_user = facade.create_user(user_data)
-            return new_user.to_dict(), 201
+            return new_user, 201
         except Exception as e:
-            return {'error': str(e)}, 400
-        
-    @api.response(200, 'List of users retrieved successfully')
+            api.abort(400, str(e))
+
+    @api.marshal_with(user_output_model, as_list=True)
+    @api.response(200, 'List of users retrieved successfully.')
     def get(self):
         """Retrieve a list of users"""
         users = facade.get_users()
-        return [user.to_dict() for user in users], 200
-    
+        return users, 200
+
 @api.route('/<user_id>')
 class UserResource(Resource):
-    @api.response(200, 'User details retrieved successfully')
-    @api.response(404, 'User not found')
+    @jwt_required()
+    @api.doc(security='Bearer Auth')
+    @api.marshal_with(user_output_model)
+    @api.response(200, 'User details retrieved successfully.')
+    @api.response(404, 'User not found.')
     def get(self, user_id):
         """Get user details by ID"""
         user = facade.get_user(user_id)
         if not user:
-            return {'error': 'User not found'}, 404
-        return user.to_dict(), 200
+            api.abort(404, 'User not found.')
+        return user, 200
 
+    @jwt_required()
+    @api.doc(security='Bearer Auth')
     @api.expect(user_model)
-    @api.response(200, 'User updated successfully')
-    @api.response(404, 'User not found')
-    @api.response(400, 'Invalid input data')
+    @api.marshal_with(user_output_model)
+    @api.response(200, 'User updated successfully.')
+    @api.response(404, 'User not found.')
+    @api.response(400, 'Invalid input data.')
+    @api.response(403, 'Admin privileges required.')
     def put(self, user_id):
+        claims = get_jwt()
+        if not claims.get("is_admin"):
+            api.abort(403, "Admin privileges required.")
+
         user_data = api.payload
         user = facade.get_user(user_id)
         if not user:
-            return {'error': 'User not found'}, 404
+            api.abort(404, 'User not found.')
+
+        for field in ['first_name', 'last_name', 'email', 'password']:
+            if field in user_data and not user_data[field].strip():
+                api.abort(400, f"{field.replace('_', ' ').capitalize()} cannot be empty.")
+
+        email = user_data.get('email')
+        if email:
+            existing_user = facade.get_user_by_email(email)
+            if existing_user and existing_user.id != user_id:
+                api.abort(409, 'Email already registered.')
+
+        password = user_data.get('password')
+        if password:
+            user_data['password'] = bcrypt.generate_password_hash(password).decode('utf-8')
+
         try:
             facade.update_user(user_id, user_data)
-            return user.to_dict(), 200
+            updated_user = facade.get_user(user_id)
+            return updated_user, 200
         except Exception as e:
-            return {'error': str(e)}, 400
+            api.abort(400, str(e))
