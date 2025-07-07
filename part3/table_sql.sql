@@ -45,14 +45,3 @@ CREATE TABLE IF NOT EXISTS amenity_place(
     FOREIGN KEY (place_id) REFERENCES places(id) ON DELETE CASCADE,
     FOREIGN KEY (amenity_id) REFERENCES amenities(id) ON DELETE CASCADE
 );
-
-INSERT INTO users (id, email, first_name, last_name, password, is_admin)
-VALUES ('36c9050e-ddd3-4c3b-9731-9f487208bbc1',
-'admin@hbnb.io', 'Admin', 'HBnB',
-'$2b$12$Q8m3vwkZfAcPZy8LQbtiAeVwR8/MtcyR7RZxTGoSCMMBhS1uUvTX6',
-True);
-
-INSERT INTO amenities (id, name) VALUES 
-('b01b0d1b-7bcb-49f3-b965-ee466b4582d7', 'Swimming Pool'),
-('919ada95-ef6f-4611-84ab-2db7a33e3cb9', 'WiFi'),
-('69f81034-872b-4ef7-bb9e-97a07f298881', 'Air Conditioning');

@@ -8,6 +8,7 @@ api = Namespace('reviews', description='Review operations')
 review_model = api.model('Review', {
     'text': fields.String(required=True, description='Text of the review'),
     'rating': fields.Integer(required=True, description='Rating of the place (1-5)'),
+    'user_id': fields.String(required=True, description='ID of the user'),
     'place_id': fields.String(required=True, description='ID of the place')
 })
 
@@ -22,6 +23,7 @@ review_output_model = api.model('ReviewOutput', {
 @api.route('/')
 class ReviewList(Resource):
     @jwt_required()
+    @api.doc(security='Bearer Auth')
     @api.expect(review_model)
     @api.marshal_with(review_output_model, code=201)
     @api.response(400, 'Invalid input data.')
@@ -49,11 +51,11 @@ class ReviewList(Resource):
         if not user:
             api.abort(400, 'User not found.')
 
-    
-        owner = place.get("owner") if isinstance(place, dict) else None
-        owner_id = owner.get("id") if owner else None
-        if owner_id == user_id:
+        owner_id = place.owner.id if place.owner else None
+
+        if owner_id is not None and str(owner_id) == str(user_id):
             api.abort(400, 'You cannot review your own place.')
+
 
         existing_review = facade.get_review_by_user_and_place(user_id, review_data['place_id'])
         if existing_review:

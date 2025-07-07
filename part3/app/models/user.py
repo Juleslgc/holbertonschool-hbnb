@@ -17,13 +17,7 @@ class User(BaseModel):
     places = db.relationship('Place', backref='owner', cascade='all, delete-orphan')
     reviews = db.relationship('Review', backref='user', cascade='all, delete-orphan')
 
-    def hash_password(self, password):
-        """Hash the password before storing it."""
-        self.password = bcrypt.generate_password_hash(password).decode('utf-8')
-
-    def verify_password(self, password):
-        """Verify the hashed password."""
-        return bcrypt.check_password_hash(self.password, password)
+    
     
     @validates('first_name')
     def validate_first_name(self, key, value):
@@ -61,8 +55,6 @@ class User(BaseModel):
     def validate_is_admin(self, key, value):
         if not isinstance(value, bool):
             raise TypeError("Is Admin must be a boolean")
-        if not value or value.strip() == "":
-            raise ValueError("Is Admin must not be empty")
         return value
 
     def add_place(self, place):
@@ -77,22 +69,21 @@ class User(BaseModel):
         """Add an amenity to the place."""
         self.reviews.remove(review)
 
-
-    @property
-    def password(self):
-        return self.__password
-
-    @password.setter
-    def password(self, value):
-        from app import bcrypt
+    @validates("password")
+    def validate(self, key, value):
         if not isinstance(value, str):
-            raise TypeError("password must be a string")
-        hashed = bcrypt.generate_password_hash(value).decode('utf-8')
-        self.__password = hashed
+            raise TypeError("Password must be a string.")
+        if len(value) < 6:
+            raise ValueError("Password must be at least 6 characters long.")
+        return value
+
+    def hash_password(self, password):
+        """Hash the password before storing it."""
+        self.password = bcrypt.generate_password_hash(password).decode('utf-8')
 
     def verify_password(self, password):
-        from app import bcrypt
-        return self.__password and bcrypt.check_password_hash(self.__password, password)
+        """Verify the hashed password."""
+        return bcrypt.check_password_hash(self.password, password)
 
     def to_dict(self):
         return {

@@ -52,6 +52,7 @@ place_list_output_model = api.model('PlaceListOutput', {
 @api.route('/')
 class PlaceList(Resource):
     @jwt_required()
+    @api.doc(security='Bearer Auth')
     @api.expect(place_model)
     @api.marshal_with(place_output_model, code=201)
     @api.response(400, 'Invalid input data.')
@@ -127,36 +128,13 @@ class PlaceResource(Resource):
         is_admin = current.get('is_admin', False) if isinstance(current, dict) else False
         user_id = current.get('id') if isinstance(current, dict) else current
 
-        if not is_admin and place.get("owner", {}).get("id") != user_id:
+        if not is_admin and place.owner.id != user_id:
             api.abort(403, 'Unauthorized action.')
     
         try:
             facade.update_place(place_id, place_data)
             updated_place = facade.get_place(place_id)
-            return updated_place, 200
-        except Exception as e:
-            api.abort(400, str(e))
-
-    @api.response(403, 'Unauthorized action.')
-    @api.response(404, 'Place not found.')
-    @api.response(200, 'Place deleted successfully.')
-    @jwt_required()
-    @api.doc(security='Bearer Auth')
-    def delete(self, place_id):
-        """
-        Delete a place.
-        """
-        current = get_jwt_identity()
-        is_admin = current.get('is_admin', False) if isinstance(current, dict) else False
-        user_id = current.get('id') if isinstance(current, dict) else current
-        place = facade.get_place(place_id)
-        if not place:
-            api.abort(404, 'Place not found.')
-        if not is_admin and place ["owner"]["id"] != user_id:
-            api.abort(403, 'Unauthorized action.')
-        try:
-            facade.delete_place(place_id)
-            return {'message': 'Place deleted successfully.'}, 200
+            return updated_place.to_dict(), 200
         except Exception as e:
             api.abort(400, str(e))
 
@@ -177,7 +155,7 @@ class PlaceAmenities(Resource):
         place = facade.get_place(place_id)
         if not place:
             api.abort(404, 'Place not found.')
-        if not is_admin and place["owner"]["id"] != user_id:
+        if not is_admin and place.owner.id != user_id:
             api.abort(403, 'Unauthorized action.')
 
         amenities_data = api.payload

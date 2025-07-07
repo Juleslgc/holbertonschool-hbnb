@@ -36,9 +36,6 @@ class HBnBFacade:
         if as_dict:
             return user.to_dict() if user else None
         return user
-
-    def get_user_by_email(self, email):
-        return self.user_repo.get_user_by_email(email)
     
     def update_user(self, user_id, user_data):
         self.user_repo.update(user_id, user_data)
@@ -87,12 +84,33 @@ class HBnBFacade:
         user.add_place(place)
         db.session.commit()
         return place
+    
+    def get_place(self, place_id):
+        return self.place_repo.get(place_id)
 
     def get_all_places(self):
         return [place.to_dict() for place in self.place_repo.get_all()]
 
     def update_place(self, place_id, place_data):
         self.place_repo.update(place_id, place_data)
+
+    def add_amenities_to_place(self, place_id, amenities_data):
+        place = self.place_repo.get(place_id)
+        if not place:
+            raise KeyError("Place not found")
+        for amenity_dict in amenities_data:
+            amenity = self.amenity_repo.get(amenity_dict['id'])
+            if not amenity:
+                raise KeyError(f"Amenity {amenity_dict['id']} not found")
+            if amenity not in place.amenities:
+                place.add_amenity(amenity)
+        return place.to_dict()
+    
+    def get_review_by_user_and_place(self, user_id, place_id, as_dict=True):
+        for review in self.review_repo.get_all():
+            if review.user.id == user_id and review.place.id == place_id:
+                return review.to_dict() if as_dict else review
+        return None
 
     # REVIEWS
     def create_review(self, review_data):
