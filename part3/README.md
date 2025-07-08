@@ -177,3 +177,27 @@ wifi = Amenity(id="a001", name="Wi-Fi")
 
 print(wifi.name)  # Wi-Fi
 ```
+## ___Entity-Relationship Diagram___
+
+_The diagram below represents the application's data model. It highlights the main entities, their attributes, and the relationships between them :_
+
+- USER : Represents the application's users, with personal information such as first name, last name, email, password, and administrator status.
+
+- PLACE : Designates the places offered, with a title, description, price, and geolocation (latitude and longitude).
+
+- REVIEW : Allows users to leave reviews of places, with text and a rating.
+
+- AMENITY : Groups the amenities or services associated with a place (Wi-Fi, parking, etc.).
+
+_Relationships :_
+
+- A user can create multiple places and leave multiple reviews.
+
+- A place can receive multiple reviews and offer multiple amenities (and vice versa).
+
+![Entity-Relationship Diagram](ER_Diagram.png)
+
+## ___Authors___
+
+-[Vithushan Satkunanathan](https://github.com/Vitushan)  
+-[Jules Ventura](https://github.com/Juleslgc)
