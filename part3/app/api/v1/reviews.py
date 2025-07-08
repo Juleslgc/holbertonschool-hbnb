@@ -8,7 +8,6 @@ api = Namespace('reviews', description='Review operations')
 review_model = api.model('Review', {
     'text': fields.String(required=True, description='Text of the review'),
     'rating': fields.Integer(required=True, description='Rating of the place (1-5)'),
-    'user_id': fields.String(required=True, description='ID of the user'),
     'place_id': fields.String(required=True, description='ID of the place')
 })
 
@@ -30,33 +29,18 @@ class ReviewList(Resource):
     def post(self):
         """Register a new review"""
         user_id = get_jwt_identity()
-        if isinstance(user_id, dict):
-            user_id = user_id.get('id')
         review_data = api.payload
-    
-        text = review_data.get('text', '').strip()
-        if not text:
-            api.abort(400, 'Review text cannot be empty.')
-        review_data['text'] = text
-
-        rating = review_data.get('rating')
-        if not isinstance(rating, int) or rating < 1 or rating > 5:
-            api.abort(400, 'Rating must be an integer between 1 and 5.')
-
-
+        review_data['user_id'] = user_id
         place = facade.get_place(review_data['place_id'])
+
         if not place:
             api.abort(400, 'Place not found.')
-        user = facade.get_user(user_id)
-        if not user:
+        if not user_id:
             api.abort(400, 'User not found.')
 
-        owner_id = place.owner.id if place.owner else None
-
-        if owner_id is not None and str(owner_id) == str(user_id):
+        if place.owner_id == user_id:
             api.abort(400, 'You cannot review your own place.')
-
-
+        
         existing_review = facade.get_review_by_user_and_place(user_id, review_data['place_id'])
         if existing_review:
             api.abort(400, 'You have already reviewed this place.')
@@ -75,6 +59,8 @@ class ReviewList(Resource):
 
 @api.route('/<review_id>')
 class ReviewResource(Resource):
+    @jwt_required()
+    @api.doc(security='Bearer Auth')
     @api.marshal_with(review_output_model)
     @api.response(200, 'Review details retrieved successfully.')
     @api.response(404, 'Review not found.')
@@ -86,6 +72,7 @@ class ReviewResource(Resource):
         return review, 200
 
     @jwt_required()
+    @api.doc(security='Bearer Auth')
     @api.expect(review_model)
     @api.response(200, 'Review updated successfully.')
     @api.response(404, 'Review not found.')
@@ -124,6 +111,7 @@ class ReviewResource(Resource):
             api.abort(400, str(e))
 
     @jwt_required()
+    @api.doc(security='Bearer Auth')
     @api.response(200, 'Review deleted successfully.')
     @api.response(404, 'Review not found.')
     @api.response(403, 'Unauthorized action.')
