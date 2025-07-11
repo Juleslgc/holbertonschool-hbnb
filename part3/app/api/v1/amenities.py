@@ -68,6 +68,8 @@ class AmenityList(Resource):
 
 @api.route('/<amenity_id>')
 class AmenityResource(Resource):
+    @jwt_required()
+    @api.doc(security='Bearer Auth')
     @api.marshal_with(amenity_output_model)
     @api.response(200, 'Amenity details retrieved successfully')
     @api.response(404, 'Amenity not found')
