@@ -114,3 +114,37 @@ function displayPlaces(places) {
     placesList.appendChild(newDiv);
   });
 }
+
+function getPlaceIdFromURL() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('id');
+  }
+
+
+async function fetchPlaceDetails(token, placeId) {
+  const response = await fetch(`http://localhost:5000/api/v1/places/${placeId}`, {
+    method: 'GET',
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+
+  if (response.ok) {
+    const data = await response.json();
+    displayPlaceDetails(data);
+  }
+}
+
+function displayPlaceDetails(place) {
+      const placeDetails = document.getElementById('place-details');
+      placeDetails.innerHTML = '';
+      
+      const newDiv = document.createElement('div');
+      newDiv.setAttribute('data-price', place.price);
+      newDiv.innerHTML = `
+      <h3>${place.name}</h3>
+      <p>${place.description}</p>
+      <p>${place.location}</p>
+      <p>Price: $${place.price}</p>
+      `;
+      
+      placeDetails.appendChild(newDiv);
+}
