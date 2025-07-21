@@ -138,13 +138,25 @@ function displayPlaceDetails(place) {
       placeDetails.innerHTML = '';
       
       const newDiv = document.createElement('div');
-      newDiv.setAttribute('data-price', place.price);
       newDiv.innerHTML = `
       <h3>${place.name}</h3>
       <p>${place.description}</p>
       <p>${place.location}</p>
       <p>Price: $${place.price}</p>
+      <h4>Amenities:</h4>
+      <ul>
+      <h4>Reviews:</h4>
+      <ul>
+      ${place.reviews}
+      </ul>
       `;
-      
+            
       placeDetails.appendChild(newDiv);
+}
+const placeId = getPlaceIdFromURL();
+if (placeId) {
+  const token = getCookie('token');
+  if (token) {
+    fetchPlaceDetails(token, placeId);
+  }
 }
