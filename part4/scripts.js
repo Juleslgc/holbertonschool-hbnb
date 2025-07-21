@@ -1,11 +1,4 @@
-/* 
-  This is a SAMPLE FILE to get you started.
-  Please, follow the project instructions to complete the tasks.
-*/
-
-
 document.addEventListener('DOMContentLoaded', () => {
-    /* DO SOMETHING */
   const loginForm = document.getElementById('login-form');
 
   if (loginForm) {
@@ -21,24 +14,103 @@ document.addEventListener('DOMContentLoaded', () => {
       const password = document.getElementById('password').value;
 
       await loginUser(email, password);
+      checkAuthentication();
     });
   }
 
-  async function loginUser(email, password) {
-    const response = await fetch('http://localhost:5000/api/v1/auth/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ email, password })
-    });
+  const priceFilter = document.getElementById('price-filter');
+  if (priceFilter) {
+    priceFilter.innerHTML =
+      `<option value="10">10</option>
+      <option value="50">50</option>
+      <option value="100">100</option>
+      <option value="">All</option>`;
 
-    if (response.ok) {
-      const data = await response.json();
-      document.cookie = `token=${data.access_token}; path=/`;
-      window.location.href = 'index.html';
-    } else {
-      alert('Login failed: ' + response.statusText);
+    priceFilter.addEventListener('change', (event) => {
+      const maxPrice = event.target.value;
+      const placeList = document.getElementById('places-list');
+      const places = placeList.children;
+      for (let i = 0; i < places.length; i++) {
+        const place = places[i];
+        const placePrice = Number(place.getAttribute('data-price'));
+        if (maxPrice === "" || placePrice <= Number(maxPrice)) {
+          place.style.display = 'block';
+        } else {
+          place.style.display = 'none';
+        }
+      }
+    });
+  }
+
+  checkAuthentication();
+});
+
+async function loginUser(email, password) {
+  const response = await fetch('http://localhost:5000/api/v1/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password })
+  });
+
+  if (response.ok) {
+    const data = await response.json();
+    document.cookie = `token=${data.access_token}; path=/`;
+    window.location.href = 'index.html';
+  } else {
+    alert('Login failed: ' + response.statusText);
+  }
+}
+
+function checkAuthentication() {
+  const token = getCookie('token');
+  const loginLink = document.getElementById('login-link');
+
+  if (!token) {
+    if (loginLink) loginLink.style.display = 'block';
+  } else {
+    if (loginLink) loginLink.style.display = 'none';
+    fetchPlaces(token);
+  }
+}
+
+function getCookie(name) {
+  const cookieName = name + '=';
+  const decodedCookie = decodeURIComponent(document.cookie);
+  const ca = decodedCookie.split(';');
+  for(let i = 0; i < ca.length; i++) {
+    let c = ca[i].trim();
+    if (c.indexOf(cookieName) === 0) {
+      return c.substring(cookieName.length, c.length);
     }
   }
-});
+  return "";
+}
+
+async function fetchPlaces(token) {
+  const response = await fetch('http://localhost:5000/api/v1/places', {
+    method: 'GET',
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+
+  if (response.ok) {
+    const data = await response.json();
+    displayPlaces(data);
+  }
+}
+
+function displayPlaces(places) {
+  const placesList = document.getElementById('places-list');
+  placesList.innerHTML = '';
+
+  places.forEach(place => {
+    const newDiv = document.createElement('div');
+    newDiv.setAttribute('data-price', place.price);
+    newDiv.innerHTML = `
+      <h3>${place.name}</h3>
+      <p>${place.description}</p>
+      <p>${place.location}</p>
+      <p>Price: $${place.price}</p>
+    `;
+    placesList.appendChild(newDiv);
+  });
+}
