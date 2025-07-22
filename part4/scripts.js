@@ -199,7 +199,7 @@ async function submitReview(token, placeId, reviewText) {
   }
 }
 
-function checkAuthenticationRedirect() {
+function checkAuthentication() {
   const token = getCookie('token');
   if (!token) {
     window.location.href = 'index.html';
