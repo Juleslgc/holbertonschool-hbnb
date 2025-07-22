@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const password = document.getElementById('password').value;
 
       await loginUser(email, password);
-   
+      checkAuthentication();
     });
   }
 
@@ -41,8 +41,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
-
-
 
   const reviewForm = document.getElementById('review-form');
   const token = checkAuthentication();
@@ -199,4 +197,12 @@ async function submitReview(token, placeId, reviewText) {
   } else {
     alert('Failed to send review');
   }
+}
+
+function checkAuthenticationRedirect() {
+  const token = getCookie('token');
+  if (!token) {
+    window.location.href = 'index.html';
+  }
+  return token;
 }
