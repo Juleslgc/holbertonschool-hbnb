@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const password = document.getElementById('password').value;
 
       await loginUser(email, password);
-      checkAuthentication();
+   
     });
   }
 
@@ -42,7 +42,31 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  checkAuthentication();
+
+
+  const reviewForm = document.getElementById('review-form');
+  const token = checkAuthentication();
+  const placeId = getPlaceIdFromURL();
+
+  if (reviewForm) {
+    reviewForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const reviewText = document.getElementById('review-text').value.trim();
+      if (reviewText === '') {
+        alert('Field is empty.');
+        return;
+      }
+      await submitReview(token, placeId, reviewText);
+    });
+  }
+
+  const placeIdFromURL = getPlaceIdFromURL();
+  if (placeIdFromURL) {
+    const tokenFromCookie = getCookie('token');
+    if (tokenFromCookie) {
+      fetchPlaceDetails(tokenFromCookie, placeIdFromURL);
+    }
+  }
 });
 
 async function loginUser(email, password) {
@@ -71,6 +95,8 @@ function checkAuthentication() {
     if (loginLink) loginLink.style.display = 'none';
     fetchPlaces(token);
   }
+
+  return token;
 }
 
 function getCookie(name) {
@@ -116,10 +142,9 @@ function displayPlaces(places) {
 }
 
 function getPlaceIdFromURL() {
-      const params = new URLSearchParams(window.location.search);
-      return params.get('id');
-  }
-
+  const params = new URLSearchParams(window.location.search);
+  return params.get('id');
+}
 
 async function fetchPlaceDetails(token, placeId) {
   const response = await fetch(`http://localhost:5000/api/v1/places/${placeId}`, {
@@ -134,29 +159,44 @@ async function fetchPlaceDetails(token, placeId) {
 }
 
 function displayPlaceDetails(place) {
-      const placeDetails = document.getElementById('place-details');
-      placeDetails.innerHTML = '';
-      
-      const newDiv = document.createElement('div');
-      newDiv.innerHTML = `
-      <h3>${place.name}</h3>
-      <p>${place.description}</p>
-      <p>${place.location}</p>
-      <p>Price: $${place.price}</p>
-      <h4>Amenities:</h4>
-      <ul>
-      <h4>Reviews:</h4>
-      <ul>
+  const placeDetails = document.getElementById('place-details');
+  placeDetails.innerHTML = '';
+
+  const newDiv = document.createElement('div');
+  newDiv.innerHTML = `
+    <h3>${place.name}</h3>
+    <p>${place.description}</p>
+    <p>${place.location}</p>
+    <p>Price: $${place.price}</p>
+    <h4>Amenities:</h4>
+    <ul>
+      ${place.amenities}
+    </ul>
+    <h4>Reviews:</h4>
+    <ul>
       ${place.reviews}
-      </ul>
-      `;
-            
-      placeDetails.appendChild(newDiv);
+    </ul>
+  `;
+  placeDetails.appendChild(newDiv);
 }
-const placeId = getPlaceIdFromURL();
-if (placeId) {
-  const token = getCookie('token');
-  if (token) {
-    fetchPlaceDetails(token, placeId);
+
+async function submitReview(token, placeId, reviewText) {
+  const response = await fetch('http://localhost:5000/api/v1/reviews', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify({
+      review: reviewText,
+      place_id: placeId
+    })
+  });
+
+  if (response.ok) {
+    alert('Review successfully submitted!');
+    document.getElementById('review-text').value = '';
+  } else {
+    alert('Failed to send review');
   }
 }
