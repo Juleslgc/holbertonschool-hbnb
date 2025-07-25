@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Place Details</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="images/icon.png" class="icon">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="index.html">
+                <img src="images/logo.png" alt="Logo" class="logo">
+            </a>
+            <a href="login.html" class="login-button">Login</a>
+        </nav>
+    </header>
+    <main>
+        <section class="place-details">
+            <div class="place-info">
+            </div>
+        </section>
+        <section id="reviews">
+            <h2>Reviews</h2>
+            <div id="reviews-container"><br>
+            </div>
+        </section>
+        <section class="add-review" style="display: none">
+            <h2>Add a Review</h2><br>
+            <form id="review-form" class="form">
+                <label for="review-text"><strong>Your Review:</strong></label><br>
+                <textarea id="review-text" name="review" required></textarea><br><br>
+                
+                <label for="rating"><strong>Rating:</strong></label><br>
+                 <select id="rating" name="rating" required>
+                    <option value="1">★</option>
+                    <option value="2">★★</option>
+                    <option value="3">★★★</option>
+                    <option value="4">★★★★</option>
+                    <option value="5">★★★★★</option>
+                </select><br><br>
+                
+                <button type="submit">Submit Review</button>
+            </form>
+            <div id="review-message" style="display:none; margin-top:10px; color: green"></div>
+        </section>
+    </main>
+    <footer>©2025 HBnB Evolution. All rights reserved</footer>
+    <script src="scripts.js"></script>
+</body>
+</html>
