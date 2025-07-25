@@ -1,0 +1,7 @@
+Ignore the pycache files
+__pycache__/
+instance/
+venv/
+HBnB.code-workspace
+development.db
+.gitgnore
